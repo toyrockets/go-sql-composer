@@ -1,6 +1,7 @@
 package sqlcomposer
 
 import (
+    "reflect"
 )
 
 // Values
@@ -218,94 +219,181 @@ func (self *SQLFloat64Value) GenerateSQLWithContext(context *SQLGenerationContex
 }
 
 func SQLVariable(value interface{}) SQLExpression {
-    if value == nil {
-        return &SQLNullLiteral{}
-    }
+    if reflect.TypeOf(value).Kind() == reflect.Ptr {
+        if value == nil || reflect.ValueOf(value).IsNil() {
+            return &SQLNullLiteral{}
+        }
+        
+        stringValue, ok := value.(*string)
     
-    stringValue, ok := value.(string)
+        if ok {
+            return &SQLStringValue{value: *stringValue}
+        }
     
-    if ok {
-        return &SQLStringValue{value: stringValue}
-    }
+        boolValue, ok := value.(*bool)
     
-    boolValue, ok := value.(bool)
+        if ok {
+            return &SQLBooleanLiteral{Value: *boolValue}
+        }
     
-    if ok {
-        return &SQLBooleanLiteral{Value: boolValue}
-    }
+        uintValue, ok := value.(*int)
     
-    uintValue, ok := value.(int)
+        if ok {
+            return &SQLIntValue{value: *uintValue}
+        }
     
-    if ok {
-        return &SQLIntValue{value: uintValue}
-    }
+        uint8Value, ok := value.(*uint8)
     
-    uint8Value, ok := value.(uint8)
+        if ok {
+            return &SQLUInt8Value{value: *uint8Value}
+        }
     
-    if ok {
-        return &SQLUInt8Value{value: uint8Value}
-    }
+        uint16Value, ok := value.(*uint16)
     
-    uint16Value, ok := value.(uint16)
+        if ok {
+            return &SQLUInt16Value{value: *uint16Value}
+        }
     
-    if ok {
-        return &SQLUInt16Value{value: uint16Value}
-    }
+        uint32Value, ok := value.(*uint32)
     
-    uint32Value, ok := value.(uint32)
+        if ok {
+            return &SQLUInt32Value{value: *uint32Value}
+        }
     
-    if ok {
-        return &SQLUInt32Value{value: uint32Value}
-    }
+        uint64Value, ok := value.(*uint64)
     
-    uint64Value, ok := value.(uint64)
+        if ok {
+            return &SQLUInt64Value{value: *uint64Value}
+        }
     
-    if ok {
-        return &SQLUInt64Value{value: uint64Value}
-    }
+        intValue, ok := value.(*int)
     
-    intValue, ok := value.(int)
+        if ok {
+            return &SQLIntValue{value: *intValue}
+        }
     
-    if ok {
-        return &SQLIntValue{value: intValue}
-    }
+        int8Value, ok := value.(*int8)
     
-    int8Value, ok := value.(int8)
+        if ok {
+            return &SQLInt8Value{value: *int8Value}
+        }
     
-    if ok {
-        return &SQLInt8Value{value: int8Value}
-    }
+        int16Value, ok := value.(*int16)
     
-    int16Value, ok := value.(int16)
+        if ok {
+            return &SQLInt16Value{value: *int16Value}
+        }
     
-    if ok {
-        return &SQLInt16Value{value: int16Value}
-    }
+        int32Value, ok := value.(*int32)
     
-    int32Value, ok := value.(int32)
+        if ok {
+            return &SQLInt32Value{value: *int32Value}
+        }
     
-    if ok {
-        return &SQLInt32Value{value: int32Value}
-    }
+        int64Value, ok := value.(*int64)
     
-    int64Value, ok := value.(int64)
+        if ok {
+            return &SQLInt64Value{value: *int64Value}
+        }
     
-    if ok {
-        return &SQLInt64Value{value: int64Value}
-    }
+        float32Value, ok := value.(*float32)
     
-    float32Value, ok := value.(float32)
+        if ok {
+            return &SQLFloat32Value{value: *float32Value}
+        }
     
-    if ok {
-        return &SQLFloat32Value{value: float32Value}
-    }
+        float64Value, ok := value.(*float64)
     
-    float64Value, ok := value.(float64)
+        if ok {
+            return &SQLFloat64Value{value: *float64Value}
+        }
+        
+    } else {
     
-    if ok {
-        return &SQLFloat64Value{value: float64Value}
+        stringValue, ok := value.(string)
+    
+        if ok {
+            return &SQLStringValue{value: stringValue}
+        }
+    
+        boolValue, ok := value.(bool)
+    
+        if ok {
+            return &SQLBooleanLiteral{Value: boolValue}
+        }
+    
+        uintValue, ok := value.(int)
+    
+        if ok {
+            return &SQLIntValue{value: uintValue}
+        }
+    
+        uint8Value, ok := value.(uint8)
+    
+        if ok {
+            return &SQLUInt8Value{value: uint8Value}
+        }
+    
+        uint16Value, ok := value.(uint16)
+    
+        if ok {
+            return &SQLUInt16Value{value: uint16Value}
+        }
+    
+        uint32Value, ok := value.(uint32)
+    
+        if ok {
+            return &SQLUInt32Value{value: uint32Value}
+        }
+    
+        uint64Value, ok := value.(uint64)
+    
+        if ok {
+            return &SQLUInt64Value{value: uint64Value}
+        }
+    
+        intValue, ok := value.(int)
+    
+        if ok {
+            return &SQLIntValue{value: intValue}
+        }
+    
+        int8Value, ok := value.(int8)
+    
+        if ok {
+            return &SQLInt8Value{value: int8Value}
+        }
+    
+        int16Value, ok := value.(int16)
+    
+        if ok {
+            return &SQLInt16Value{value: int16Value}
+        }
+    
+        int32Value, ok := value.(int32)
+    
+        if ok {
+            return &SQLInt32Value{value: int32Value}
+        }
+    
+        int64Value, ok := value.(int64)
+    
+        if ok {
+            return &SQLInt64Value{value: int64Value}
+        }
+    
+        float32Value, ok := value.(float32)
+    
+        if ok {
+            return &SQLFloat32Value{value: float32Value}
+        }
+    
+        float64Value, ok := value.(float64)
+    
+        if ok {
+            return &SQLFloat64Value{value: float64Value}
+        }
     }
     
     return nil
-    
 }
