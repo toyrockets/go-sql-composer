@@ -85,14 +85,10 @@ func (self *SelectStatement) From(tables ...interface{}) *SelectStatement {
 func (self *SelectStatement) Where(predicates ...interface{}) *SelectStatement {
     if self.predicates == nil {
         self.predicates = []Predicate{}
-        fmt.Println("FOOBLE!!!!")
     }
     
-    fmt.Println("Input: ", predicates)
     subpredicates := ParsePredicates(predicates...)
-    fmt.Println("Subpredicates: ", subpredicates)
     self.predicates = append(self.predicates, subpredicates...)
-    fmt.Println("Subpredicates: ", self.predicates)
 	
 	return self
 }
