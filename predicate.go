@@ -9,13 +9,13 @@ import (
 type ComparisonOperator string
 
 const (
-	EqualOperator ComparisonOperator = "="
-	NotEqualOperator ComparisonOperator = "!="
-	LessThanOperator ComparisonOperator = "<"
-	LessThanOrEqualOperator ComparisonOperator = "<="
-	GreaterThanOperator ComparisonOperator = ">"
-	GreaterThanOrEqualOperator ComparisonOperator = ">"
-	InOperator ComparisonOperator = "in"
+    EqualOperator ComparisonOperator = "="
+    NotEqualOperator ComparisonOperator = "!="
+    LessThanOperator ComparisonOperator = "<"
+    LessThanOrEqualOperator ComparisonOperator = "<="
+    GreaterThanOperator ComparisonOperator = ">"
+    GreaterThanOrEqualOperator ComparisonOperator = ">"
+    InOperator ComparisonOperator = "in"
 )
 
 type Predicate interface {
@@ -180,30 +180,45 @@ type BetweenPredicate struct {
 }
 
 func ParsePredicates(values...interface{}) []Predicate {
+    if len(values) == 0 {	
+        return []Predicate{}
+    }
+
     predicates := []Predicate{}
 
-	if len(values) > 0 {	
-		for _, value := range values {
-            predicateMap, ok := value.(map[interface{}]interface{})
+    for _, value := range values {
+        predicateMap, ok := value.(map[interface{}]interface{})
+
+        if ok {
+            subpredicates := ParsePredicateMap(predicateMap)
+            predicates = append(predicates, subpredicates...)
+            continue
+        }
+
+        predicateMap2, ok := value.(map[string]interface{})
+
+        if ok {
+			fooble := map[interface{}]interface{}{}
+			
+			for k, v := range predicateMap2 {
+				fooble[k] = v
+			}
+            subpredicates := ParsePredicateMap(fooble)
+            predicates = append(predicates, subpredicates...)
+            continue
+        }
+
+        predicate, ok := value.(Predicate)
             
-            if ok {
-                subpredicates := ParsePredicateMap(predicateMap)
-                predicates = append(predicates, subpredicates...)
-                continue
-            }
+        if ok {
+            predicates = append(predicates, predicate)
+            continue
+        }
             
-            predicate, ok := value.(Predicate)
-            
-            if ok {
-                predicates = append(predicates, predicate)
-                continue
-            }
-            
-	        fmt.Println("No clue what this is: ", value)
-		}
-	}
+        fmt.Printf("No clue what this is 2: %#v\n", value)
+    }
 	
-	return predicates
+    return predicates
 }
 
 func ParsePredicateMap(values map[interface{}]interface{}) []Predicate {
