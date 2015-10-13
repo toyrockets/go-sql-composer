@@ -20,12 +20,14 @@ func (self *SelectStatement) GenerateSQL() (SQL string, values []interface{}) {
 func (self *SelectStatement) GenerateSQLWithContext(context *SQLGenerationContext) (SQL string, values []interface{}) {
 	var sqlFragments []string
 	SQL = "select"
+    values = []interface{}{}
 	
 	sqlFragments = []string{}
 
 	for _, expression := range self.selectList {
-		expressionSQL, _ := expression.GenerateSQLWithContext(context)
+		expressionSQL, selectListValues := expression.GenerateSQLWithContext(context)
 		sqlFragments = append(sqlFragments, expressionSQL)
+		values = append(values, selectListValues...)
 	}
 
 	SQL += " " + strings.Join(sqlFragments, ", ")
@@ -34,8 +36,9 @@ func (self *SelectStatement) GenerateSQLWithContext(context *SQLGenerationContex
 		sqlFragments = []string{}
 
 		for _, reference := range self.tableReferences {
-			expressionSQL, _ := reference.GenerateSQLWithContext(context)
+			expressionSQL, referenceValues := reference.GenerateSQLWithContext(context)
 			sqlFragments = append(sqlFragments, expressionSQL)
+			values = append(values, referenceValues...)
 		}
 
 		SQL += " from " + strings.Join(sqlFragments, ", ")
@@ -43,12 +46,12 @@ func (self *SelectStatement) GenerateSQLWithContext(context *SQLGenerationContex
 
 	if len(self.predicates) > 0 {
         andPredicate := AndPredicate{predicates: self.predicates}
-        predicateSQL, _ := andPredicate.GenerateSQLWithContext(context)
+        predicateSQL, predicateValues := andPredicate.GenerateSQLWithContext(context)
 
 		SQL += " where " + predicateSQL
+		values = append(values, predicateValues...)
 	}
 	
-	values = []interface{}{}
 	return
 }
 
