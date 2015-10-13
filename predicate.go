@@ -140,9 +140,7 @@ func (self *NotPredicate) GenerateSQL() (SQL string, values []interface{}) {
 
 func (self *NotPredicate) GenerateSQLWithContext(context *SQLGenerationContext) (SQL string, values []interface{}) {
     SQL, values = self.predicate.GenerateSQLWithContext(context)
-    fmt.Println("Predicate: ", self.predicate)
-    fmt.Println("SQL: ", SQL)
-    SQL = "not (" + SQL + ")"
+    SQL = fmt.Sprintf("not (%s)")
     return
 }
 
@@ -280,7 +278,6 @@ func Or(values ...interface{}) *OrPredicate {
 
 func Not(values ...interface{}) *NotPredicate {
     andPredicate := And(values...)
-    fmt.Println("AND: ", andPredicate)
     return &NotPredicate{predicate: andPredicate}
 }
 
