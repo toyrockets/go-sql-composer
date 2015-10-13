@@ -39,13 +39,9 @@ func (self *InsertStatement) GenerateSQLWithContext(context *SQLGenerationContex
         columnFragments = append(columnFragments, columnSQL)
         values = append(values, columnValues...)
         
-		fmt.Println(value)
         valueSQL, stuff :=  value.GenerateSQLWithContext(context)
         valueFragments = append(valueFragments, valueSQL)
-		fmt.Println(valueSQL)
-		fmt.Println(stuff)
         values = append(values, stuff...)
-        
     }
 
     SQL += fmt.Sprintf(" (%s) values (%s)", strings.Join(columnFragments, ", "), strings.Join(valueFragments, ", "))
