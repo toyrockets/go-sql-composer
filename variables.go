@@ -2,6 +2,7 @@ package sqlcomposer
 
 import (
     "reflect"
+	"time"
 )
 
 // Values
@@ -218,6 +219,21 @@ func (self *SQLFloat64Value) GenerateSQLWithContext(context *SQLGenerationContex
     return
 }
 
+type SQLTimeValue struct {
+	value time.Time
+}
+
+func (self *SQLTimeValue) GenerateSQL() (SQL string, values []interface{}) {
+    SQL, values = self.GenerateSQLWithContext(&SQLGenerationContext{Style: DefaultStyle})
+    return
+}
+
+func (self *SQLTimeValue) GenerateSQLWithContext(context *SQLGenerationContext) (SQL string, values []interface{}) {
+    SQL = context.GetNextParameterName()
+    values = []interface{}{self.value}
+    return
+}
+
 func SQLVariable(value interface{}) SQLExpression {
     if reflect.TypeOf(value).Kind() == reflect.Ptr {
         if value == nil || reflect.ValueOf(value).IsNil() {
@@ -308,6 +324,11 @@ func SQLVariable(value interface{}) SQLExpression {
             return &SQLFloat64Value{value: *float64Value}
         }
         
+		timeValue, ok := value.(*time.Time)
+		
+		if ok {
+			return &SQLTimeValue{value: *timeValue}
+		}
     } else {
     
         stringValue, ok := value.(string)
@@ -393,6 +414,12 @@ func SQLVariable(value interface{}) SQLExpression {
         if ok {
             return &SQLFloat64Value{value: float64Value}
         }
+		
+		timeValue, ok := value.(time.Time)
+
+		if ok {
+			return &SQLTimeValue{value: timeValue}
+		}
     }
     
     return nil
