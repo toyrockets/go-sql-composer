@@ -1,9 +1,8 @@
-package decimal_test
+package sqlcomposer_test
 
 import (
     sql "com.toyrockets/sqlcomposer"
     "testing"
-    "fmt"
 )
 
 func TestSimpleInsert(t *testing.T) {
@@ -12,13 +11,24 @@ func TestSimpleInsert(t *testing.T) {
         "blarg": 10,
     })
     SQL, values := statement.GenerateSQL()
-    fmt.Println(SQL)
-    fmt.Println(values)
 
     result := "insert into user (blarg, foo) values($1, $2)"
     if SQL != result  {
         t.Error("Expected ", result, " got ", SQL)
     }
+
+	expectedValues := []interface{}{10, "bar"}
+
+	if len(values) != len(expectedValues) {
+        t.Error("Expected ", expectedValues, " got ", values)
+	} else {
+		for index, value := range values {
+			if value != expectedValues[index] {
+		        t.Error("Expected ", expectedValues, " got ", values)
+				break
+			}
+		}
+	}
 
 }
 
@@ -33,13 +43,24 @@ func TestInsertWithSubSelect(t *testing.T) {
         "id": selectStatement,
     })
     SQL, values := statement.GenerateSQL()
-    fmt.Println(SQL)
-    fmt.Println(values)
 
-    result := "insert into user (blarg, foo, id) values($1, $2, select id from table1 where external_id = $3)"
-    if SQL != result  {
-        t.Error("Expected ", result, " got ", SQL)
+    expectedSQL := "insert into user (blarg, foo, id) values ($1, $2, select id from table1 where external_id = $3)"
+    if SQL != expectedSQL  {
+        t.Error("Expected ", expectedSQL, " got ", SQL)
     }
+
+	expectedValues := []interface{}{10, "bar", 10}
+
+	if len(values) != len(expectedValues) {
+        t.Error("Expected ", expectedValues, " got ", values)
+	} else {
+		for index, value := range values {
+			if value != expectedValues[index] {
+		        t.Error("Expected ", expectedValues, " got ", values)
+				break
+			}
+		}
+	}
 
 }
 

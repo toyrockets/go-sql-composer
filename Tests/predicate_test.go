@@ -5,20 +5,15 @@ import (
     "testing"
 )
 
-func TestSimpleSelect(t *testing.T) {
-    statement := sql.Select("a", "b", "c").From("t1", "t2", "t3").Where(map[string]interface{}{
+func TestAndPredicate(t *testing.T) {
+    andPredicate := sql.And(map[string]interface{}{
         "foo": "bar",
         "blarg": 10,
     })
-    SQL, values := statement.GenerateSQL()
-
-    expectedSQL := "select a, b, c from t1, t2, t3 where foo = $1 and blarg = $2"
-    if SQL != expectedSQL  {
-        t.Error("Expected ", expectedSQL, " got ", SQL)
-    }
+    SQL, values := andPredicate.GenerateSQL()
 
 	expectedValues := []interface{}{10, "bar"}
-	
+
 	if len(values) != len(expectedValues) {
         t.Error("Expected ", expectedValues, " got ", values)
 	} else {
@@ -29,6 +24,12 @@ func TestSimpleSelect(t *testing.T) {
 			}
 		}
 	}
+
+    expectedSQL := "foo = $1 and blarg = $2"
+    if SQL != expectedSQL  {
+        t.Error("Expected ", expectedSQL, " got ", SQL)
+    }
+
 
 }
 
