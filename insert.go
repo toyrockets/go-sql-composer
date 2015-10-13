@@ -2,6 +2,7 @@ package sqlcomposer
 
 import (
 	"strings"
+	"sort"
 )
 
 type InsertStatement struct {
@@ -25,7 +26,14 @@ func (self *InsertStatement) GenerateSQLWithContext(context *SQLGenerationContex
     values = []interface{}{}
 
     
-    for column, value := range self.values {
+	var columnList ColumnList
+	for column := range self.values {
+	    columnList = append(columnList, column)
+	}
+	sort.Sort(columnList)
+	for _, column := range columnList {
+		value := self.values[column]
+
         columnSQL, columnValues := column.GenerateSQLWithContext(context)
         columnFragments = append(columnFragments, columnSQL)
         values = append(values, columnValues...)
@@ -63,11 +71,17 @@ func (self *InsertStatement) Values(values map[interface{}]interface{}) *InsertS
 			//
 			// 	    fmt.Printf("%v is a map? %v\n", val, reflect.ValueOf(val).Kind() == reflect.Map)
             
-            expression := SQLVariable(value)
+			valueExpression, ok := value.(SQLExpression)
+			
+			if (ok) {
+				self.values[column] = valueExpression;
+			} else {
+				expression := SQLVariable(value)
             
-            if expression != nil {
-                self.values[column] = expression
-            }
+				if expression != nil {
+					self.values[column] = expression
+				}
+			}
 		}
 	}
 	
