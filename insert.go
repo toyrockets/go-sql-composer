@@ -40,6 +40,11 @@ func (self *InsertStatement) GenerateSQLWithContext(context *SQLGenerationContex
         values = append(values, columnValues...)
         
         valueSQL, stuff :=  value.GenerateSQLWithContext(context)
+		_, ok := value.(*SelectStatement)
+		if ok {
+			valueSQL = fmt.Sprintf("(%s)", valueSQL)
+		}
+		
         valueFragments = append(valueFragments, valueSQL)
         values = append(values, stuff...)
     }
