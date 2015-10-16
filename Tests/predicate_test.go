@@ -25,7 +25,7 @@ func TestAndPredicate(t *testing.T) {
 		}
 	}
 
-    expectedSQL := "foo = $1 and blarg = $2"
+    expectedSQL := "\"foo\" = $1 and \"blarg\" = $2"
     if SQL != expectedSQL  {
         t.Error("Expected ", expectedSQL, " got ", SQL)
     }

@@ -7,7 +7,7 @@ import (
 )
 
 type InsertStatement struct {
-    table Table
+    table SQLIdentifier
     values map[Column]SQLExpression
 }
 
@@ -18,7 +18,7 @@ func (self *InsertStatement) GenerateSQL() (SQL string, values []interface{}) {
 
 func (self *InsertStatement) GenerateSQLWithContext(context *SQLGenerationContext) (SQL string, values []interface{}) {
 	SQL = "insert into"
-	
+
     tableSQL, _ := self.table.GenerateSQLWithContext(context)
     SQL += " " + tableSQL
 
@@ -88,13 +88,13 @@ func (self *InsertStatement) Values(values map[interface{}]interface{}) *InsertS
 }
 
 func Insert (table interface{}) *InsertStatement {
-    var tableValue Table
+    var tableValue SQLIdentifier
     tableName, ok := table.(string)
 
     if ok {
-        tableValue = Table{Name: tableName}
+        tableValue = SQLIdentifier{Name: tableName}
     } else {
-        tableValue, ok = table.(Table)
+        tableValue, ok = table.(SQLIdentifier)
         
         if !ok {
             return nil
