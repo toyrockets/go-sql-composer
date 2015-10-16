@@ -65,6 +65,8 @@ func (self *SQLIdentifier) GenerateSQLWithContext(context *SQLGenerationContext)
 
 type TableExpression interface {
 	GenerateSQL() (SQL string, values []interface{})
+	GenerateSQLWithContext(context *SQLGenerationContext) (SQL string, values []interface{})
+	GenerateTableExpressionSQLWithContext(contextr *SQLGenerationContext) (SQL string, values []interface{})
 }
 
 type TableReference struct {
@@ -99,7 +101,12 @@ func (self *Table) GenerateSQL() (SQL string, values []interface{}) {
 }
 
 func (self *Table) GenerateSQLWithContext(context *SQLGenerationContext) (SQL string, values []interface{}) {
-	SQL = self.Name
+	SQL = fmt.Sprintf("\"%s\"", self.Name)
 	values = []interface{}{}
+	return
+}
+
+func (self *Table) GenerateTableExpressionSQLWithContext(context *SQLGenerationContext) (SQL string, values []interface{}) {
+	SQL, values = self.GenerateSQLWithContext(context)
 	return
 }

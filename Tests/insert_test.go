@@ -47,7 +47,7 @@ func TestInsertWithSubSelect(t *testing.T) {
     })
     SQL, values := statement.GenerateSQL()
 
-    expectedSQL := "insert into \"user\" (blarg, foo, id) values ($1, $2, (select id from table1 where \"external_id\" = $3))"
+    expectedSQL := "insert into \"user\" (blarg, foo, id) values ($1, $2, (select id from \"table1\" where \"external_id\" = $3))"
     if SQL != expectedSQL  {
         t.Error("Expected ", expectedSQL, " got ", SQL)
     }
