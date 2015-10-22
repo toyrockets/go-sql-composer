@@ -8,8 +8,8 @@ import (
 func TestSimpleSelect(t *testing.T) {
     statement := sql.Select("a", "b", "c").From("t1", "t2", "t3").Where(map[string]interface{}{
         "foo": "bar",
-        "blarg": 10,
-    })
+        "blarg": sql.GreaterThan(10),
+    }).OrderBy("a")
     SQL, values := statement.GenerateSQL()
 
     expectedSQL := "select a, b, c from \"t1\", \"t2\", \"t3\" where \"foo\" = $1 and \"blarg\" = $2"

@@ -10,6 +10,7 @@ type SelectStatement struct {
 	selectList []SQLExpression
 	tableReferences []TableReference
     predicates []Predicate
+    sortDescriptors []*SortDescriptor
 }
 
 func (self *SelectStatement) GenerateSQL() (SQL string, values []interface{}) {
@@ -94,6 +95,16 @@ func (self *SelectStatement) Where(predicates ...interface{}) *SelectStatement {
     self.predicates = append(self.predicates, subpredicates...)
 	
 	return self
+}
+
+func (self *SelectStatement) OrderBy(descriptors ...interface{}) *SelectStatement {
+    if self.sortDescriptors == nil {
+        self.sortDescriptors = []*SortDescriptor{}
+    }
+    
+    sortDescriptors := ParseSortDescriptors(descriptors)
+    self.sortDescriptors = append(self.sortDescriptors, sortDescriptors...)
+    return self
 }
 
 func Select (selectList ...interface{}) *SelectStatement {
