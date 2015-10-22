@@ -12,7 +12,7 @@ func TestSimpleSelect(t *testing.T) {
     }).OrderBy("a")
     SQL, values := statement.GenerateSQL()
 
-    expectedSQL := "select a, b, c from \"t1\", \"t2\", \"t3\" where \"foo\" = $1 and \"blarg\" = $2"
+    expectedSQL := "select a, b, c from \"t1\", \"t2\", \"t3\" where \"foo\" = $1 and \"blarg\" > $2 order by \"a\" asc"
     if SQL != expectedSQL  {
         t.Error("Expected ", expectedSQL, " got ", SQL)
     }

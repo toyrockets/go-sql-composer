@@ -53,6 +53,18 @@ func (self *SelectStatement) GenerateSQLWithContext(context *SQLGenerationContex
 		values = append(values, predicateValues...)
 	}
 	
+	if len(self.sortDescriptors) > 0 {
+		sqlFragments = []string{}
+
+		for _, descriptor := range self.sortDescriptors {
+			descriptorSQL, descriptorValues := descriptor.GenerateSQLWithContext(context)
+			sqlFragments = append(sqlFragments, descriptorSQL)
+			values = append(values, descriptorValues...)
+		}
+
+		SQL += fmt.Sprintf(" order by %s", strings.Join(sqlFragments, ", "))
+	}
+    
 	return
 }
 
@@ -102,7 +114,7 @@ func (self *SelectStatement) OrderBy(descriptors ...interface{}) *SelectStatemen
         self.sortDescriptors = []*SortDescriptor{}
     }
     
-    sortDescriptors := ParseSortDescriptors(descriptors)
+    sortDescriptors := ParseSortDescriptors(descriptors...)
     self.sortDescriptors = append(self.sortDescriptors, sortDescriptors...)
     return self
 }

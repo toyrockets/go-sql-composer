@@ -29,13 +29,13 @@ func (self *SortDescriptor) GenerateSQLWithContext(context *SQLGenerationContext
 }
 
 
-func ParseSortDescriptors(values ...interface{}) []*SortDescriptor {
+func ParseSortDescriptors(values...interface{}) []*SortDescriptor {
     var descriptors []*SortDescriptor
 	for _, value := range values {
         var sortExpression SQLExpression
 
         var descriptor *SortDescriptor
-        
+
         if stringValue, ok := value.(string); ok {
             sortExpression = &SQLIdentifier{Name: stringValue}
             descriptor = &SortDescriptor{value: sortExpression, order: SortAscending}
