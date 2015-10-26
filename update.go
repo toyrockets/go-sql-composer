@@ -1,6 +1,7 @@
 package sqlcomposer
 
 import (
+    "fmt"
 	"strings"
 )
 
@@ -8,6 +9,7 @@ type UpdateStatement struct {
     table Table
     values map[Column]SQLExpression
     predicates []Predicate
+    returningExpressions []SQLExpression
 }
 
 func (self *UpdateStatement) GenerateSQL() (SQL string, values []interface{}) {
@@ -35,7 +37,7 @@ func (self *UpdateStatement) GenerateSQLWithContext(context *SQLGenerationContex
         sqlFragments = append(sqlFragments, sqlFragment)
     }
 
-    SQL += " " + strings.Join(sqlFragments, ", ")
+    SQL += fmt.Sprintf(" set %s", strings.Join(sqlFragments, ", "))
     
 	if len(self.predicates) > 0 {
         andPredicate := AndPredicate{predicates: self.predicates}
@@ -45,6 +47,18 @@ func (self *UpdateStatement) GenerateSQLWithContext(context *SQLGenerationContex
 		SQL += " where " + predicateSQL
 	}
 	
+	if len(self.returningExpressions) > 0 {
+		sqlFragments = []string{}
+
+		for _, expression := range self.returningExpressions {
+			expressionSQL, expressionValues := expression.GenerateSQLWithContext(context)
+			sqlFragments = append(sqlFragments, expressionSQL)
+			values = append(values, expressionValues...)
+		}
+
+		SQL += fmt.Sprintf(" returning %s", strings.Join(sqlFragments, ", "))
+	}
+    
 	return
 }
 
@@ -90,6 +104,19 @@ func (self *UpdateStatement) Where(predicates ...interface{}) *UpdateStatement {
     self.predicates = append(self.predicates, subpredicates...)
 	
 	return self
+}
+
+func (self *UpdateStatement) Returning(values ...interface{}) *UpdateStatement {
+    if self.returningExpressions == nil {
+        self.returningExpressions = []SQLExpression{}
+    }
+	
+	for _, value := range values {
+        expression := SQLLiteral(value)
+        self.returningExpressions = append(self.returningExpressions, expression)
+	}
+    
+    return self
 }
 
 func Update(table interface{}) *UpdateStatement {
