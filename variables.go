@@ -235,8 +235,11 @@ func (self *SQLTimeValue) GenerateSQLWithContext(context *SQLGenerationContext) 
 }
 
 func SQLVariable(value interface{}) SQLExpression {
+    if value == nil {
+        return &SQLNullLiteral{}
+    }
     if reflect.TypeOf(value).Kind() == reflect.Ptr {
-        if value == nil || reflect.ValueOf(value).IsNil() {
+        if reflect.ValueOf(value).IsNil() {
             return &SQLNullLiteral{}
         }
         

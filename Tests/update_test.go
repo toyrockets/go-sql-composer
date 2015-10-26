@@ -9,10 +9,11 @@ func TestSimpleUpdate (t *testing.T) {
     statement := sql.Update("user").Set(map[string]interface{}{
         "foo": "bar",
         "blarg": 10,
+        "wongle": nil,
     })
     SQL, values := statement.GenerateSQL()
 
-    result := "update \"user\" set foo = $1, blarg = $2"
+    result := "update \"user\" set foo = $1, blarg = $2, wongle = null"
     if SQL != result  {
         t.Error("Expected ", result, " got ", SQL)
     }
