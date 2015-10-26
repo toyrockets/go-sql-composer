@@ -6,7 +6,7 @@ import (
 )
 
 func TestSimpleUpdate (t *testing.T) {
-    statement := sql.Update("user").Set(map[interface{}]interface{}{
+    statement := sql.Update("user").Set(map[string]interface{}{
         "foo": "bar",
         "blarg": 10,
     })
@@ -33,7 +33,7 @@ func TestSimpleUpdate (t *testing.T) {
 }
 
 func TestUpdateWithReturningClause(t *testing.T) {
-    statement := sql.Update("user").Set(map[interface{}]interface{}{
+    statement := sql.Update("user").Set(map[string]interface{}{
         "foo": "bar",
         "blarg": 10,
     }).Returning("*")

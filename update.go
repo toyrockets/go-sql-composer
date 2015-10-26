@@ -62,28 +62,14 @@ func (self *UpdateStatement) GenerateSQLWithContext(context *SQLGenerationContex
 	return
 }
 
-func (self *UpdateStatement) Set(values map[interface{}]interface{}) *UpdateStatement {
+func (self *UpdateStatement) Set(values map[string]interface{}) *UpdateStatement {
     if self.values == nil {
         self.values = map[Column]SQLExpression{}
     }
 
 	if len(values) > 0 {	
 		for key, value := range values {
-            var column Column
-            columnName, ok := key.(string)
-
-            if ok {
-                column = Column{Name: columnName}
-            } else {
-                column, ok = key.(Column)
-                
-                if !ok {
-                    continue
-                }
-            }
-			//
-			// 	    fmt.Printf("%v is a map? %v\n", val, reflect.ValueOf(val).Kind() == reflect.Map)
-            
+            column := Column{Name: key}
             expression := SQLVariable(value)
             
             if expression != nil {
