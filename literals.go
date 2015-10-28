@@ -287,6 +287,6 @@ func SQLLiteral(value interface{}) SQLExpression {
 	case float64:
 		return &SQLFloat64Literal{Value: val}
 	default:
-		panic(fmt.Errorf("%T cannot be used as a SQL literal"))
+		panic(fmt.Errorf("%T cannot be used as a SQL literal", val))
 	}
 }
