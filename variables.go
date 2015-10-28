@@ -32,6 +32,5 @@ func SQLVariable(value interface{}) SQLExpression {
         return &SQLValue{value: val}
     default:
         panic(fmt.Errorf("%T cannot be a SQL value", value))
-        return nil
     }
 }
