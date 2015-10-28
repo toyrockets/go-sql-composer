@@ -70,25 +70,11 @@ func (self *SelectStatement) GenerateSQLWithContext(context *SQLGenerationContex
 
 func (self *SelectStatement) From(tables ...interface{}) *SelectStatement {
 	if len(tables) > 0 {	
-		for _, val := range tables {
-			// _, ok := val.(map[string]string)
-			//
-			// if ok {
-			// 	fmt.Println("Found a map")
-			// }
-			//
-			// 	    fmt.Printf("%v is a map? %v\n", val, reflect.ValueOf(val).Kind() == reflect.Map)
-		
+		for _, val := range tables {		
 		    switch reflect.ValueOf(val).Kind() {
 			    case reflect.String:
 					tableReference := TableReference{tableExpression: &Table{Name: val.(string)}}
 					self.tableReferences = append(self.tableReferences, tableReference)
-			    // case int:
-			    //     fmt.Println("Select lists don't support integers in the select list right now")
-			    // case []interface{}:
-			    //     fmt.Println("This is an array: ", val)
-			    // case map[string]interface{}:
-			    //     fmt.Println("This is a map: ", val)
 				default:
 			        fmt.Println("No clue what this is: ", val)
 			}
@@ -123,23 +109,9 @@ func Select (selectList ...interface{}) *SelectStatement {
 	fooble := []SQLExpression{}
 	
 	for _, val := range selectList {
-		// _, ok := val.(map[string]string)
-		//
-		// if ok {
-		// 	fmt.Println("Found a map")
-		// }
-		//
-		// 	    fmt.Printf("%v is a map? %v\n", val, reflect.ValueOf(val).Kind() == reflect.Map)
-		
 	    switch reflect.ValueOf(val).Kind() {
 		    case reflect.String:
 				fooble = append(fooble, &Column{Name: val.(string)})
-		    // case int:
-		    //     fmt.Println("Select lists don't support integers in the select list right now")
-		    // case []interface{}:
-		    //     fmt.Println("This is an array: ", val)
-		    // case map[string]interface{}:
-		    //     fmt.Println("This is a map: ", val)
 			default:
 		        fmt.Println("No clue what this is: ", val)
 		}

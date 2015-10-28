@@ -2,7 +2,6 @@ package sqlcomposer
 
 import (
     "strings"
-//    "reflect"
 )
 
 type SortOrder string

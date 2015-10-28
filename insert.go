@@ -72,8 +72,6 @@ func (self *InsertStatement) Values(values map[interface{}]interface{}) *InsertS
                     continue
                 }
             }
-			//
-			// 	    fmt.Printf("%v is a map? %v\n", val, reflect.ValueOf(val).Kind() == reflect.Map)
             
 			valueExpression, ok := value.(SQLExpression)
 			

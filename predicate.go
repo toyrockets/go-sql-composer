@@ -3,7 +3,6 @@ package sqlcomposer
 import (
     "fmt"
     "strings"
-//    "reflect"
 )
 
 type ComparisonOperator string
