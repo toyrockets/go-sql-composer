@@ -6,22 +6,22 @@ import (
 )
 
 type SelectStatement struct {
-	selectList []SQLExpression
+	selectList      []SQLExpression
 	tableReferences []TableReference
-    predicates []Predicate
-    sortDescriptors []*SortDescriptor
+	predicates      []Predicate
+	sortDescriptors []*SortDescriptor
 }
 
 func (self *SelectStatement) GenerateSQL() (SQL string, values []interface{}) {
-    SQL, values = self.GenerateSQLWithContext(&SQLGenerationContext{Style: DefaultStyle})
-    return
+	SQL, values = self.GenerateSQLWithContext(&SQLGenerationContext{Style: DefaultStyle})
+	return
 }
 
 func (self *SelectStatement) GenerateSQLWithContext(context *SQLGenerationContext) (SQL string, values []interface{}) {
 	var sqlFragments []string
 	SQL = "select"
-    values = []interface{}{}
-	
+	values = []interface{}{}
+
 	sqlFragments = []string{}
 
 	for _, expression := range self.selectList {
@@ -31,7 +31,7 @@ func (self *SelectStatement) GenerateSQLWithContext(context *SQLGenerationContex
 	}
 
 	SQL += " " + strings.Join(sqlFragments, ", ")
-	
+
 	if len(self.tableReferences) > 0 {
 		sqlFragments = []string{}
 
@@ -45,13 +45,13 @@ func (self *SelectStatement) GenerateSQLWithContext(context *SQLGenerationContex
 	}
 
 	if len(self.predicates) > 0 {
-        andPredicate := AndPredicate{predicates: self.predicates}
-        predicateSQL, predicateValues := andPredicate.GenerateSQLWithContext(context)
+		andPredicate := AndPredicate{predicates: self.predicates}
+		predicateSQL, predicateValues := andPredicate.GenerateSQLWithContext(context)
 
 		SQL += " where " + predicateSQL
 		values = append(values, predicateValues...)
 	}
-	
+
 	if len(self.sortDescriptors) > 0 {
 		sqlFragments = []string{}
 
@@ -63,56 +63,56 @@ func (self *SelectStatement) GenerateSQLWithContext(context *SQLGenerationContex
 
 		SQL += fmt.Sprintf(" order by %s", strings.Join(sqlFragments, ", "))
 	}
-    
+
 	return
 }
 
 func (self *SelectStatement) From(tables ...interface{}) *SelectStatement {
-	if len(tables) > 0 {	
+	if len(tables) > 0 {
 		for _, val := range tables {
-            if stringValue, ok := val.(string); ok {
+			if stringValue, ok := val.(string); ok {
 				tableReference := TableReference{tableExpression: &Table{Name: stringValue}}
 				self.tableReferences = append(self.tableReferences, tableReference)
-            } else {
-		        fmt.Println("No clue what this is: ", val)
+			} else {
+				fmt.Println("No clue what this is: ", val)
 			}
 		}
 	}
-	
+
 	return self
 }
 
 func (self *SelectStatement) Where(predicates ...interface{}) *SelectStatement {
-    if self.predicates == nil {
-        self.predicates = []Predicate{}
-    }
-    
-    subpredicates := ParsePredicates(predicates...)
-    self.predicates = append(self.predicates, subpredicates...)
-	
+	if self.predicates == nil {
+		self.predicates = []Predicate{}
+	}
+
+	subpredicates := ParsePredicates(predicates...)
+	self.predicates = append(self.predicates, subpredicates...)
+
 	return self
 }
 
 func (self *SelectStatement) OrderBy(descriptors ...interface{}) *SelectStatement {
-    if self.sortDescriptors == nil {
-        self.sortDescriptors = []*SortDescriptor{}
-    }
-    
-    sortDescriptors := ParseSortDescriptors(descriptors...)
-    self.sortDescriptors = append(self.sortDescriptors, sortDescriptors...)
-    return self
+	if self.sortDescriptors == nil {
+		self.sortDescriptors = []*SortDescriptor{}
+	}
+
+	sortDescriptors := ParseSortDescriptors(descriptors...)
+	self.sortDescriptors = append(self.sortDescriptors, sortDescriptors...)
+	return self
 }
 
-func Select (selectList ...interface{}) *SelectStatement {
+func Select(selectList ...interface{}) *SelectStatement {
 	expressions := []SQLExpression{}
-	
+
 	for _, val := range selectList {
-        if stringValue, ok := val.(string); ok {
+		if stringValue, ok := val.(string); ok {
 			expressions = append(expressions, &Column{Name: stringValue})
-        } else {
-	        fmt.Println("No clue what this is: ", val)
+		} else {
+			fmt.Println("No clue what this is: ", val)
 		}
 	}
-	
+
 	return &SelectStatement{selectList: expressions, tableReferences: []TableReference{}}
 }

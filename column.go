@@ -5,13 +5,13 @@ import (
 )
 
 type Column struct {
-	Name string
+	Name  string
 	Alias string
 }
 
 func (self *Column) GenerateSQL() (SQL string, values []interface{}) {
-    SQL, values = self.GenerateSQLWithContext(&SQLGenerationContext{Style: DefaultStyle})
-    return
+	SQL, values = self.GenerateSQLWithContext(&SQLGenerationContext{Style: DefaultStyle})
+	return
 }
 
 func (self *Column) GenerateSQLWithContext(context *SQLGenerationContext) (SQL string, values []interface{}) {
@@ -28,11 +28,11 @@ func (self *Column) GenerateSQLWithContext(context *SQLGenerationContext) (SQL s
 type ColumnList []Column
 
 func (columns ColumnList) Len() int {
-    return len(columns)
+	return len(columns)
 }
 func (columns ColumnList) Swap(i, j int) {
-    columns[i], columns[j] = columns[j], columns[i]
+	columns[i], columns[j] = columns[j], columns[i]
 }
 func (columns ColumnList) Less(i, j int) bool {
-    return columns[i].Name < columns[j].Name
+	return columns[i].Name < columns[j].Name
 }

@@ -6,18 +6,18 @@ import (
 )
 
 type SQLFunction struct {
-	Name SQLStringLiteral
+	Name      SQLStringLiteral
 	Arguments []SQLExpression
 }
 
 func (self *SQLFunction) GenerateSQL() (SQL string, values []interface{}) {
-    SQL, values = self.GenerateSQLWithContext(&SQLGenerationContext{Style: DefaultStyle})
-    return
+	SQL, values = self.GenerateSQLWithContext(&SQLGenerationContext{Style: DefaultStyle})
+	return
 }
 
 func (self *SQLFunction) GenerateSQLWithContext(context *SQLGenerationContext) (SQL string, values []interface{}) {
 	sqlFragments := []string{}
-    values = []interface{}{}
+	values = []interface{}{}
 
 	nameSQL, nameValues := self.Name.GenerateSQLWithContext(context)
 	values = append(values, nameValues...)
@@ -35,16 +35,16 @@ func (self *SQLFunction) GenerateSQLWithContext(context *SQLGenerationContext) (
 
 func Func(name string, arguments ...interface{}) *SQLFunction {
 	args := []SQLExpression{}
-	
+
 	for _, argument := range arguments {
 		functionValue, ok := argument.(*SQLFunction)
-		
+
 		if ok {
 			args = append(args, functionValue)
 		} else {
 			args = append(args, SQLVariable(argument))
 		}
 	}
-	
+
 	return &SQLFunction{Name: SQLStringLiteral{Value: name}, Arguments: args}
 }

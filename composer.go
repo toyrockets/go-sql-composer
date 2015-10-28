@@ -1,42 +1,42 @@
 package sqlcomposer
 
 import (
-    "strconv"
 	"fmt"
+	"strconv"
 )
 
 type BindVariableStyle int
 
 const (
-	NumericStyle BindVariableStyle = iota
-	NamedStyle BindVariableStyle = iota
+	NumericStyle      BindVariableStyle = iota
+	NamedStyle        BindVariableStyle = iota
 	QuestionMarkStyle BindVariableStyle = iota
-	
-	Postgres BindVariableStyle = NumericStyle
-	Oracle BindVariableStyle = NamedStyle
-	MySQL BindVariableStyle = QuestionMarkStyle
-    DefaultStyle BindVariableStyle = NumericStyle
+
+	Postgres     BindVariableStyle = NumericStyle
+	Oracle       BindVariableStyle = NamedStyle
+	MySQL        BindVariableStyle = QuestionMarkStyle
+	DefaultStyle BindVariableStyle = NumericStyle
 )
 
 type SQLGenerationContext struct {
-    Style BindVariableStyle
-    parameterIndex int
-    parameterName string
+	Style          BindVariableStyle
+	parameterIndex int
+	parameterName  string
 }
 
 func (self *SQLGenerationContext) GetNextParameterName() string {
-    switch (self.Style) {
-        case NumericStyle:
-            self.parameterIndex++
-            return "$" + strconv.Itoa(self.parameterIndex)
-        case NamedStyle:
-            return ":" + self.parameterName
-        case QuestionMarkStyle:
-            fallthrough
-        default:
-            return "?"
-    }
-    
+	switch self.Style {
+	case NumericStyle:
+		self.parameterIndex++
+		return "$" + strconv.Itoa(self.parameterIndex)
+	case NamedStyle:
+		return ":" + self.parameterName
+	case QuestionMarkStyle:
+		fallthrough
+	default:
+		return "?"
+	}
+
 }
 
 //func (self *SQLGenerationContext) GetBindVariableName
@@ -49,18 +49,18 @@ type SQLExpression interface {
 // Identifier
 
 type SQLIdentifier struct {
-    Name string
+	Name string
 }
 
 func (self *SQLIdentifier) GenerateSQL() (SQL string, values []interface{}) {
-    SQL, values = self.GenerateSQLWithContext(&SQLGenerationContext{Style: DefaultStyle})
-    return
+	SQL, values = self.GenerateSQLWithContext(&SQLGenerationContext{Style: DefaultStyle})
+	return
 }
 
 func (self *SQLIdentifier) GenerateSQLWithContext(context *SQLGenerationContext) (SQL string, values []interface{}) {
-    SQL = fmt.Sprintf("\"%s\"", self.Name);
-    values = []interface{}{}
-    return
+	SQL = fmt.Sprintf("\"%s\"", self.Name)
+	values = []interface{}{}
+	return
 }
 
 type TableExpression interface {
@@ -71,12 +71,12 @@ type TableExpression interface {
 
 type TableReference struct {
 	tableExpression TableExpression
-	alias string
+	alias           string
 }
 
 func (self *TableReference) GenerateSQL() (SQL string, values []interface{}) {
-    SQL, values = self.GenerateSQLWithContext(&SQLGenerationContext{Style: DefaultStyle})
-    return
+	SQL, values = self.GenerateSQLWithContext(&SQLGenerationContext{Style: DefaultStyle})
+	return
 }
 
 func (self *TableReference) GenerateSQLWithContext(context *SQLGenerationContext) (SQL string, values []interface{}) {
@@ -96,8 +96,8 @@ type Table struct {
 }
 
 func (self *Table) GenerateSQL() (SQL string, values []interface{}) {
-    SQL, values = self.GenerateSQLWithContext(&SQLGenerationContext{Style: DefaultStyle})
-    return
+	SQL, values = self.GenerateSQLWithContext(&SQLGenerationContext{Style: DefaultStyle})
+	return
 }
 
 func (self *Table) GenerateSQLWithContext(context *SQLGenerationContext) (SQL string, values []interface{}) {
