@@ -1,6 +1,7 @@
 package sqlcomposer
 
 import (
+	"fmt"
 	"strconv"
 )
 
@@ -256,90 +257,36 @@ func SQLLiteral(value interface{}) SQLExpression {
 		return &SQLNullLiteral{}
 	}
 
-	stringValue, ok := value.(string)
-
-	if ok {
-		return &SQLStringLiteral{Value: stringValue}
+	switch val := value.(type) {
+	case string:
+		return &SQLStringLiteral{Value: val}
+	case bool:
+		return &SQLBooleanLiteral{Value: val}
+	case uint:
+		return &SQLUIntLiteral{Value: val}
+	case uint8:
+		return &SQLUInt8Literal{Value: val}
+	case uint16:
+		return &SQLUInt16Literal{Value: val}
+	case uint32:
+		return &SQLUInt32Literal{Value: val}
+	case uint64:
+		return &SQLUInt64Literal{Value: val}
+	case int:
+		return &SQLIntLiteral{Value: val}
+	case int8:
+		return &SQLInt8Literal{Value: val}
+	case int16:
+		return &SQLInt16Literal{Value: val}
+	case int32:
+		return &SQLInt32Literal{Value: val}
+	case int64:
+		return &SQLInt64Literal{Value: val}
+	case float32:
+		return &SQLFloat32Literal{Value: val}
+	case float64:
+		return &SQLFloat64Literal{Value: val}
+	default:
+		panic(fmt.Errorf("%T cannot be used as a SQL literal"))
 	}
-
-	boolValue, ok := value.(bool)
-
-	if ok {
-		return &SQLBooleanLiteral{Value: boolValue}
-	}
-
-	uintValue, ok := value.(int)
-
-	if ok {
-		return &SQLIntLiteral{Value: uintValue}
-	}
-
-	uint8Value, ok := value.(uint8)
-
-	if ok {
-		return &SQLUInt8Literal{Value: uint8Value}
-	}
-
-	uint16Value, ok := value.(uint16)
-
-	if ok {
-		return &SQLUInt16Literal{Value: uint16Value}
-	}
-
-	uint32Value, ok := value.(uint32)
-
-	if ok {
-		return &SQLUInt32Literal{Value: uint32Value}
-	}
-
-	uint64Value, ok := value.(uint64)
-
-	if ok {
-		return &SQLUInt64Literal{Value: uint64Value}
-	}
-
-	intValue, ok := value.(int)
-
-	if ok {
-		return &SQLIntLiteral{Value: intValue}
-	}
-
-	int8Value, ok := value.(int8)
-
-	if ok {
-		return &SQLInt8Literal{Value: int8Value}
-	}
-
-	int16Value, ok := value.(int16)
-
-	if ok {
-		return &SQLInt16Literal{Value: int16Value}
-	}
-
-	int32Value, ok := value.(int32)
-
-	if ok {
-		return &SQLInt32Literal{Value: int32Value}
-	}
-
-	int64Value, ok := value.(int64)
-
-	if ok {
-		return &SQLInt64Literal{Value: int64Value}
-	}
-
-	float32Value, ok := value.(float32)
-
-	if ok {
-		return &SQLFloat32Literal{Value: float32Value}
-	}
-
-	float64Value, ok := value.(float64)
-
-	if ok {
-		return &SQLFloat64Literal{Value: float64Value}
-	}
-
-	return nil
-
 }
