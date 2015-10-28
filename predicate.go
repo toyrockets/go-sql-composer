@@ -140,7 +140,7 @@ func (self *NotPredicate) GenerateSQL() (SQL string, values []interface{}) {
 
 func (self *NotPredicate) GenerateSQLWithContext(context *SQLGenerationContext) (SQL string, values []interface{}) {
     SQL, values = self.predicate.GenerateSQLWithContext(context)
-    SQL = fmt.Sprintf("not (%s)")
+    SQL = fmt.Sprintf("not (%s)", SQL)
     return
 }
 
