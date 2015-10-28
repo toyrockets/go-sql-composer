@@ -3,7 +3,6 @@ package sqlcomposer
 import (
 	"fmt"
 	"strings"
-	"reflect"
 )
 
 type SelectStatement struct {
@@ -70,13 +69,12 @@ func (self *SelectStatement) GenerateSQLWithContext(context *SQLGenerationContex
 
 func (self *SelectStatement) From(tables ...interface{}) *SelectStatement {
 	if len(tables) > 0 {	
-		for _, val := range tables {		
-		    switch reflect.ValueOf(val).Kind() {
-			    case reflect.String:
-					tableReference := TableReference{tableExpression: &Table{Name: val.(string)}}
-					self.tableReferences = append(self.tableReferences, tableReference)
-				default:
-			        fmt.Println("No clue what this is: ", val)
+		for _, val := range tables {
+            if stringValue, ok := val.(string); ok {
+				tableReference := TableReference{tableExpression: &Table{Name: stringValue}}
+				self.tableReferences = append(self.tableReferences, tableReference)
+            } else {
+		        fmt.Println("No clue what this is: ", val)
 			}
 		}
 	}
@@ -106,16 +104,15 @@ func (self *SelectStatement) OrderBy(descriptors ...interface{}) *SelectStatemen
 }
 
 func Select (selectList ...interface{}) *SelectStatement {
-	fooble := []SQLExpression{}
+	expressions := []SQLExpression{}
 	
 	for _, val := range selectList {
-	    switch reflect.ValueOf(val).Kind() {
-		    case reflect.String:
-				fooble = append(fooble, &Column{Name: val.(string)})
-			default:
-		        fmt.Println("No clue what this is: ", val)
+        if stringValue, ok := val.(string); ok {
+			expressions = append(expressions, &Column{Name: stringValue})
+        } else {
+	        fmt.Println("No clue what this is: ", val)
 		}
 	}
 	
-	return &SelectStatement{selectList: fooble, tableReferences: []TableReference{}}
+	return &SelectStatement{selectList: expressions, tableReferences: []TableReference{}}
 }
