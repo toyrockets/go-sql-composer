@@ -248,17 +248,11 @@ func ParsePredicateMap(values map[interface{}]interface{}) []Predicate {
 }
 
 func ParsePredicateRightValue(value interface{}) SQLExpression {
-    var rightValue SQLExpression = SQLVariable(value)
-    
-    if rightValue == nil {
-        preciateValue, ok := value.(SQLExpression)
-        
-        if ok {
-            rightValue = preciateValue
-        }
+    if predicateValue, ok := value.(SQLExpression); ok {
+        return predicateValue
+    } else {
+        return SQLVariable(value)
     }
-    
-    return rightValue
 }
 
 //
