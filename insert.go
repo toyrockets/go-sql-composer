@@ -9,6 +9,7 @@ import (
 type InsertStatement struct {
 	table  SQLIdentifier
 	values map[Column]SQLExpression
+	returningExpressions []SQLExpression
 }
 
 func (self *InsertStatement) GenerateSQL() (SQL string, values []interface{}) {
@@ -49,6 +50,19 @@ func (self *InsertStatement) GenerateSQLWithContext(context *SQLGenerationContex
 	}
 
 	SQL += fmt.Sprintf(" (%s) values (%s)", strings.Join(columnFragments, ", "), strings.Join(valueFragments, ", "))
+	
+	if len(self.returningExpressions) > 0 {
+		sqlFragments := []string{}
+
+		for _, expression := range self.returningExpressions {
+			expressionSQL, expressionValues := expression.GenerateSQLWithContext(context)
+			sqlFragments = append(sqlFragments, expressionSQL)
+			values = append(values, expressionValues...)
+		}
+
+		SQL += fmt.Sprintf(" returning %s", strings.Join(sqlFragments, ", "))
+	}
+	
 	return
 }
 
@@ -84,6 +98,19 @@ func (self *InsertStatement) Values(values map[interface{}]interface{}) *InsertS
 				}
 			}
 		}
+	}
+
+	return self
+}
+
+func (self *InsertStatement) Returning(values ...interface{}) *InsertStatement {
+	if self.returningExpressions == nil {
+		self.returningExpressions = []SQLExpression{}
+	}
+
+	for _, value := range values {
+		expression := SQLLiteral(value)
+		self.returningExpressions = append(self.returningExpressions, expression)
 	}
 
 	return self

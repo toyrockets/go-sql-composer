@@ -90,5 +90,33 @@ func TestInsertWithFunction(t *testing.T) {
 			}
 		}
 	}
-
 }
+
+func TestInsertWithReturning(t *testing.T) {
+	time := time.Now()
+	statement := sql.Insert("user").Values(map[interface{}]interface{}{
+		"foo":        "bar",
+		"blarg":      10,
+		"created_at": time,
+	}).Returning("*")
+	SQL, values := statement.GenerateSQL()
+
+	result := "insert into \"user\" (blarg, created_at, foo) values ($1, $2, $3) returning *"
+	if SQL != result {
+		t.Error("Expected ", result, " got ", SQL)
+	}
+
+	expectedValues := []interface{}{10, time, "bar"}
+
+	if len(values) != len(expectedValues) {
+		t.Error("Expected ", expectedValues, " got ", values)
+	} else {
+		for index, value := range values {
+			if value != expectedValues[index] {
+				t.Error("Expected ", expectedValues, " got ", values)
+				break
+			}
+		}
+	}
+}
+
