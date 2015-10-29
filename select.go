@@ -141,7 +141,7 @@ func Select(selectList ...interface{}) *SelectStatement {
 	for _, val := range selectList {
 		if stringValue, ok := val.(string); ok {
 			expressions = append(expressions, &ColumnReference{expression: &SQLIdentifier{Name: stringValue}})
-		} else if mapValue, ok := val.(map[string]string); ok {
+		} else if mapValue, ok := val.(map[string]interface{}); ok {
 			columnExpressions := ParseSelectMap(mapValue)
 			expressions = append(expressions, columnExpressions...)
 		} else {
@@ -152,11 +152,20 @@ func Select(selectList ...interface{}) *SelectStatement {
 	return &SelectStatement{selectList: expressions, tableReferences: []TableReference{}}
 }
 
-func ParseSelectMap(values map[string]string) []SQLExpression {
+func ParseSelectMap(values map[string]interface{}) []SQLExpression {
 	expressions := []SQLExpression{}
 
 	for key, value := range values {
-		expression := &ColumnReference{expression: &SQLIdentifier{Name: key}, alias: &SQLIdentifier{Name: value}}
+		var alias *SQLIdentifier = nil
+		
+		switch aliasName := value.(type) {
+		case string:
+			alias = &SQLIdentifier{Name: aliasName}
+		default:
+			alias = nil
+		}
+
+		expression := &ColumnReference{expression: &SQLIdentifier{Name: key}, alias: alias}
 		expressions = append(expressions, expression)
 	}
 
