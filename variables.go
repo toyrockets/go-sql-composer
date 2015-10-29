@@ -29,35 +29,95 @@ func SQLVariable(value interface{}) SQLExpression {
 
 	switch val := value.(type) {
 	case *string:
-		value = *val
+		if val != nil {
+			value = *val
+		} else {
+			value = nil
+		}
 	case *bool:
-		value = *val
+		if val != nil {
+			value = *val
+		} else {
+			value = nil
+		}
 	case *uint:
-		value = *val
+		if val != nil {
+			value = *val
+		} else {
+			value = nil
+		}
 	case *uint8:
-		value = *val
+		if val != nil {
+			value = *val
+		} else {
+			value = nil
+		}
 	case *uint16:
-		value = *val
+		if val != nil {
+			value = *val
+		} else {
+			value = nil
+		}
 	case *uint32:
-		value = *val
+		if val != nil {
+			value = *val
+		} else {
+			value = nil
+		}
 	case *uint64:
-		value = *val
+		if val != nil {
+			value = *val
+		} else {
+			value = nil
+		}
 	case *int:
-		value = *val
+		if val != nil {
+			value = *val
+		} else {
+			value = nil
+		}
 	case *int8:
-		value = *val
+		if val != nil {
+			value = *val
+		} else {
+			value = nil
+		}
 	case *int16:
-		value = *val
+		if val != nil {
+			value = *val
+		} else {
+			value = nil
+		}
 	case *int32:
-		value = *val
+		if val != nil {
+			value = *val
+		} else {
+			value = nil
+		}
 	case *int64:
-		value = *val
+		if val != nil {
+			value = *val
+		} else {
+			value = nil
+		}
 	case *float32:
-		value = *val
+		if val != nil {
+			value = *val
+		} else {
+			value = nil
+		}
 	case *float64:
-		value = *val
+		if val != nil {
+			value = *val
+		} else {
+			value = nil
+		}
 	case *time.Time:
-		value = *val
+		if val != nil {
+			value = *val
+		} else {
+			value = nil
+		}
 	}
 
 	switch val := value.(type) {
