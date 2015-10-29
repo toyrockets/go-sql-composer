@@ -32,91 +32,91 @@ func SQLVariable(value interface{}) SQLExpression {
 		if val != nil {
 			value = *val
 		} else {
-			value = nil
+			return &SQLNullLiteral{}
 		}
 	case *bool:
 		if val != nil {
 			value = *val
 		} else {
-			value = nil
+			return &SQLNullLiteral{}
 		}
 	case *uint:
 		if val != nil {
 			value = *val
 		} else {
-			value = nil
+			return &SQLNullLiteral{}
 		}
 	case *uint8:
 		if val != nil {
 			value = *val
 		} else {
-			value = nil
+			return &SQLNullLiteral{}
 		}
 	case *uint16:
 		if val != nil {
 			value = *val
 		} else {
-			value = nil
+			return &SQLNullLiteral{}
 		}
 	case *uint32:
 		if val != nil {
 			value = *val
 		} else {
-			value = nil
+			return &SQLNullLiteral{}
 		}
 	case *uint64:
 		if val != nil {
 			value = *val
 		} else {
-			value = nil
+			return &SQLNullLiteral{}
 		}
 	case *int:
 		if val != nil {
 			value = *val
 		} else {
-			value = nil
+			return &SQLNullLiteral{}
 		}
 	case *int8:
 		if val != nil {
 			value = *val
 		} else {
-			value = nil
+			return &SQLNullLiteral{}
 		}
 	case *int16:
 		if val != nil {
 			value = *val
 		} else {
-			value = nil
+			return &SQLNullLiteral{}
 		}
 	case *int32:
 		if val != nil {
 			value = *val
 		} else {
-			value = nil
+			return &SQLNullLiteral{}
 		}
 	case *int64:
 		if val != nil {
 			value = *val
 		} else {
-			value = nil
+			return &SQLNullLiteral{}
 		}
 	case *float32:
 		if val != nil {
 			value = *val
 		} else {
-			value = nil
+			return &SQLNullLiteral{}
 		}
 	case *float64:
 		if val != nil {
 			value = *val
 		} else {
-			value = nil
+			return &SQLNullLiteral{}
 		}
 	case *time.Time:
 		if val != nil {
 			value = *val
 		} else {
-			value = nil
+			return &SQLNullLiteral{}
 		}
 	}
 
