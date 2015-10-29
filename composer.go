@@ -3,6 +3,7 @@ package sqlcomposer
 import (
 	"fmt"
 	"strconv"
+	"strings"
 )
 
 type BindVariableStyle int
@@ -58,7 +59,8 @@ func (self *SQLIdentifier) GenerateSQL() (SQL string, values []interface{}) {
 }
 
 func (self *SQLIdentifier) GenerateSQLWithContext(context *SQLGenerationContext) (SQL string, values []interface{}) {
-	SQL = fmt.Sprintf("\"%s\"", self.Name)
+	components := strings.Split(self.Name, ".")
+	SQL = fmt.Sprintf("\"%s\"", strings.Join(components, "\".\""))
 	values = []interface{}{}
 	return
 }
