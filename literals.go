@@ -23,7 +23,8 @@ func (self *SQLStringLiteral) GeneralLiteralSQL() (SQL string, values []interfac
 }
 
 func (self *SQLStringLiteral) GenerateSQL() (SQL string, values []interface{}) {
-	SQL, values = self.GenerateSQLWithContext(&SQLGenerationContext{Style: DefaultStyle})
+	DefaultSQLGenerationContext.reset()
+	SQL, values = self.GenerateSQLWithContext(DefaultSQLGenerationContext)
 	return
 }
 
@@ -43,7 +44,8 @@ func (self *SQLBooleanLiteral) GeneralLiteralSQL() (SQL string, values []interfa
 }
 
 func (self *SQLBooleanLiteral) GenerateSQL() (SQL string, values []interface{}) {
-	SQL, values = self.GenerateSQLWithContext(&SQLGenerationContext{Style: DefaultStyle})
+	DefaultSQLGenerationContext.reset()
+	SQL, values = self.GenerateSQLWithContext(DefaultSQLGenerationContext)
 	return
 }
 
@@ -62,7 +64,8 @@ func (self *SQLNullLiteral) GeneralLiteralSQL() (SQL string, values []interface{
 }
 
 func (self *SQLNullLiteral) GenerateSQL() (SQL string, values []interface{}) {
-	SQL, values = self.GenerateSQLWithContext(&SQLGenerationContext{Style: DefaultStyle})
+	DefaultSQLGenerationContext.reset()
+	SQL, values = self.GenerateSQLWithContext(DefaultSQLGenerationContext)
 	return
 }
 
@@ -77,7 +80,8 @@ type SQLUIntLiteral struct {
 }
 
 func (self *SQLUIntLiteral) GenerateSQL() (SQL string, values []interface{}) {
-	SQL, values = self.GenerateSQLWithContext(&SQLGenerationContext{Style: DefaultStyle})
+	DefaultSQLGenerationContext.reset()
+	SQL, values = self.GenerateSQLWithContext(DefaultSQLGenerationContext)
 	return
 }
 
@@ -92,7 +96,8 @@ type SQLUInt8Literal struct {
 }
 
 func (self *SQLUInt8Literal) GenerateSQL() (SQL string, values []interface{}) {
-	SQL, values = self.GenerateSQLWithContext(&SQLGenerationContext{Style: DefaultStyle})
+	DefaultSQLGenerationContext.reset()
+	SQL, values = self.GenerateSQLWithContext(DefaultSQLGenerationContext)
 	return
 }
 
@@ -107,7 +112,8 @@ type SQLUInt16Literal struct {
 }
 
 func (self *SQLUInt16Literal) GenerateSQL() (SQL string, values []interface{}) {
-	SQL, values = self.GenerateSQLWithContext(&SQLGenerationContext{Style: DefaultStyle})
+	DefaultSQLGenerationContext.reset()
+	SQL, values = self.GenerateSQLWithContext(DefaultSQLGenerationContext)
 	return
 }
 
@@ -122,7 +128,8 @@ type SQLUInt32Literal struct {
 }
 
 func (self *SQLUInt32Literal) GenerateSQL() (SQL string, values []interface{}) {
-	SQL, values = self.GenerateSQLWithContext(&SQLGenerationContext{Style: DefaultStyle})
+	DefaultSQLGenerationContext.reset()
+	SQL, values = self.GenerateSQLWithContext(DefaultSQLGenerationContext)
 	return
 }
 
@@ -137,7 +144,8 @@ type SQLUInt64Literal struct {
 }
 
 func (self *SQLUInt64Literal) GenerateSQL() (SQL string, values []interface{}) {
-	SQL, values = self.GenerateSQLWithContext(&SQLGenerationContext{Style: DefaultStyle})
+	DefaultSQLGenerationContext.reset()
+	SQL, values = self.GenerateSQLWithContext(DefaultSQLGenerationContext)
 	return
 }
 
@@ -152,7 +160,8 @@ type SQLIntLiteral struct {
 }
 
 func (self *SQLIntLiteral) GenerateSQL() (SQL string, values []interface{}) {
-	SQL, values = self.GenerateSQLWithContext(&SQLGenerationContext{Style: DefaultStyle})
+	DefaultSQLGenerationContext.reset()
+	SQL, values = self.GenerateSQLWithContext(DefaultSQLGenerationContext)
 	return
 }
 
@@ -167,7 +176,8 @@ type SQLInt8Literal struct {
 }
 
 func (self *SQLInt8Literal) GenerateSQL() (SQL string, values []interface{}) {
-	SQL, values = self.GenerateSQLWithContext(&SQLGenerationContext{Style: DefaultStyle})
+	DefaultSQLGenerationContext.reset()
+	SQL, values = self.GenerateSQLWithContext(DefaultSQLGenerationContext)
 	return
 }
 
@@ -182,7 +192,8 @@ type SQLInt16Literal struct {
 }
 
 func (self *SQLInt16Literal) GenerateSQL() (SQL string, values []interface{}) {
-	SQL, values = self.GenerateSQLWithContext(&SQLGenerationContext{Style: DefaultStyle})
+	DefaultSQLGenerationContext.reset()
+	SQL, values = self.GenerateSQLWithContext(DefaultSQLGenerationContext)
 	return
 }
 
@@ -197,7 +208,8 @@ type SQLInt32Literal struct {
 }
 
 func (self *SQLInt32Literal) GenerateSQL() (SQL string, values []interface{}) {
-	SQL, values = self.GenerateSQLWithContext(&SQLGenerationContext{Style: DefaultStyle})
+	DefaultSQLGenerationContext.reset()
+	SQL, values = self.GenerateSQLWithContext(DefaultSQLGenerationContext)
 	return
 }
 
@@ -212,7 +224,8 @@ type SQLInt64Literal struct {
 }
 
 func (self *SQLInt64Literal) GenerateSQL() (SQL string, values []interface{}) {
-	SQL, values = self.GenerateSQLWithContext(&SQLGenerationContext{Style: DefaultStyle})
+	DefaultSQLGenerationContext.reset()
+	SQL, values = self.GenerateSQLWithContext(DefaultSQLGenerationContext)
 	return
 }
 
@@ -227,7 +240,8 @@ type SQLFloat32Literal struct {
 }
 
 func (self *SQLFloat32Literal) GenerateSQL() (SQL string, values []interface{}) {
-	SQL, values = self.GenerateSQLWithContext(&SQLGenerationContext{Style: DefaultStyle})
+	DefaultSQLGenerationContext.reset()
+	SQL, values = self.GenerateSQLWithContext(DefaultSQLGenerationContext)
 	return
 }
 
@@ -242,7 +256,8 @@ type SQLFloat64Literal struct {
 }
 
 func (self *SQLFloat64Literal) GenerateSQL() (SQL string, values []interface{}) {
-	SQL, values = self.GenerateSQLWithContext(&SQLGenerationContext{Style: DefaultStyle})
+	DefaultSQLGenerationContext.reset()
+	SQL, values = self.GenerateSQLWithContext(DefaultSQLGenerationContext)
 	return
 }
 

@@ -14,7 +14,8 @@ type SelectStatement struct {
 }
 
 func (self *SelectStatement) GenerateSQL() (SQL string, values []interface{}) {
-	SQL, values = self.GenerateSQLWithContext(&SQLGenerationContext{Style: DefaultStyle})
+	DefaultSQLGenerationContext.reset()
+	SQL, values = self.GenerateSQLWithContext(DefaultSQLGenerationContext)
 	return
 }
 
@@ -139,11 +140,25 @@ func Select(selectList ...interface{}) *SelectStatement {
 
 	for _, val := range selectList {
 		if stringValue, ok := val.(string); ok {
-			expressions = append(expressions, &Column{Name: stringValue})
+			expressions = append(expressions, &ColumnReference{expression: &SQLIdentifier{Name: stringValue}})
+		} else if mapValue, ok := val.(map[string]string); ok {
+			columnExpressions := ParseSelectMap(mapValue)
+			expressions = append(expressions, columnExpressions...)
 		} else {
 			fmt.Println("No clue what this is: ", val)
 		}
 	}
 
 	return &SelectStatement{selectList: expressions, tableReferences: []TableReference{}}
+}
+
+func ParseSelectMap(values map[string]string) []SQLExpression {
+	expressions := []SQLExpression{}
+
+	for key, value := range values {
+		expression := &ColumnReference{expression: &SQLIdentifier{Name: key}, alias: &SQLIdentifier{Name: value}}
+		expressions = append(expressions, expression)
+	}
+
+	return expressions
 }

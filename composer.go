@@ -6,6 +6,12 @@ import (
 	"strings"
 )
 
+var DefaultSQLGenerationContext *SQLGenerationContext
+
+func init() {
+	DefaultSQLGenerationContext = &SQLGenerationContext{Style: DefaultStyle, QuoteIdentifiers: true}
+}
+
 type BindVariableStyle int
 
 const (
@@ -20,9 +26,14 @@ const (
 )
 
 type SQLGenerationContext struct {
-	Style          BindVariableStyle
-	parameterIndex int
-	parameterName  string
+	Style            BindVariableStyle
+	QuoteIdentifiers bool
+	parameterIndex   int
+	parameterName    string
+}
+
+func (self *SQLGenerationContext) reset() {
+	self.parameterIndex = 0
 }
 
 func (self *SQLGenerationContext) GetNextParameterName() string {
@@ -54,13 +65,19 @@ type SQLIdentifier struct {
 }
 
 func (self *SQLIdentifier) GenerateSQL() (SQL string, values []interface{}) {
-	SQL, values = self.GenerateSQLWithContext(&SQLGenerationContext{Style: DefaultStyle})
+	DefaultSQLGenerationContext.reset()
+	SQL, values = self.GenerateSQLWithContext(DefaultSQLGenerationContext)
 	return
 }
 
 func (self *SQLIdentifier) GenerateSQLWithContext(context *SQLGenerationContext) (SQL string, values []interface{}) {
-	components := strings.Split(self.Name, ".")
-	SQL = fmt.Sprintf("\"%s\"", strings.Join(components, "\".\""))
+	if context.QuoteIdentifiers {
+		components := strings.Split(self.Name, ".")
+		SQL = fmt.Sprintf("\"%s\"", strings.Join(components, "\".\""))
+	} else {
+		SQL = self.Name
+	}
+
 	values = []interface{}{}
 	return
 }
@@ -73,20 +90,21 @@ type TableExpression interface {
 
 type TableReference struct {
 	tableExpression TableExpression
-	alias           string
+	alias           *string
 }
 
 func (self *TableReference) GenerateSQL() (SQL string, values []interface{}) {
-	SQL, values = self.GenerateSQLWithContext(&SQLGenerationContext{Style: DefaultStyle})
+	DefaultSQLGenerationContext.reset()
+	SQL, values = self.GenerateSQLWithContext(DefaultSQLGenerationContext)
 	return
 }
 
 func (self *TableReference) GenerateSQLWithContext(context *SQLGenerationContext) (SQL string, values []interface{}) {
-	expressionSQL, _ := self.tableExpression.GenerateSQL()
+	expressionSQL, _ := self.tableExpression.GenerateSQLWithContext(context)
 	SQL = expressionSQL
 
-	if len(self.alias) > 0 {
-		SQL += " as " + self.alias
+	if self.alias != nil {
+		SQL += fmt.Sprintf(" as %s", *self.alias)
 	}
 
 	values = []interface{}{}
@@ -98,12 +116,18 @@ type Table struct {
 }
 
 func (self *Table) GenerateSQL() (SQL string, values []interface{}) {
-	SQL, values = self.GenerateSQLWithContext(&SQLGenerationContext{Style: DefaultStyle})
+	DefaultSQLGenerationContext.reset()
+	SQL, values = self.GenerateSQLWithContext(DefaultSQLGenerationContext)
 	return
 }
 
 func (self *Table) GenerateSQLWithContext(context *SQLGenerationContext) (SQL string, values []interface{}) {
-	SQL = fmt.Sprintf("\"%s\"", self.Name)
+	if context.QuoteIdentifiers {
+		SQL = fmt.Sprintf("\"%s\"", self.Name)
+	} else {
+		SQL = self.Name
+	}
+
 	values = []interface{}{}
 	return
 }

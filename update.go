@@ -2,18 +2,20 @@ package sqlcomposer
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 )
 
 type UpdateStatement struct {
 	table                Table
-	values               map[Column]SQLExpression
+	values               map[ColumnReference]SQLExpression
 	predicates           []Predicate
 	returningExpressions []SQLExpression
 }
 
 func (self *UpdateStatement) GenerateSQL() (SQL string, values []interface{}) {
-	SQL, values = self.GenerateSQLWithContext(&SQLGenerationContext{Style: NumericStyle})
+	DefaultSQLGenerationContext.reset()
+	SQL, values = self.GenerateSQLWithContext(DefaultSQLGenerationContext)
 	return
 }
 
@@ -26,7 +28,14 @@ func (self *UpdateStatement) GenerateSQLWithContext(context *SQLGenerationContex
 	sqlFragments := []string{}
 	values = []interface{}{}
 
-	for column, value := range self.values {
+	var columnList ColumnList
+	for column := range self.values {
+		columnList = append(columnList, column)
+	}
+	sort.Stable(columnList)
+	for _, column := range columnList {
+		value := self.values[column]
+
 		columnSQL, columnValues := column.GenerateSQLWithContext(context)
 		values = append(values, columnValues...)
 		valueSQL, stuff := value.GenerateSQLWithContext(context)
@@ -63,12 +72,12 @@ func (self *UpdateStatement) GenerateSQLWithContext(context *SQLGenerationContex
 
 func (self *UpdateStatement) Set(values map[string]interface{}) *UpdateStatement {
 	if self.values == nil {
-		self.values = map[Column]SQLExpression{}
+		self.values = map[ColumnReference]SQLExpression{}
 	}
 
 	if len(values) > 0 {
 		for key, value := range values {
-			column := Column{Name: key}
+			column := ColumnReference{expression: &SQLIdentifier{Name: key}}
 			expression := SQLVariable(value)
 
 			if expression != nil {

@@ -12,12 +12,39 @@ func TestSimpleSelect(t *testing.T) {
 	}).OrderBy("a")
 	SQL, values := statement.GenerateSQL()
 
-	expectedSQL := "select a, b, c from \"t1\", \"t2\", \"t3\" where \"foo\" = $1 and \"blarg\" > $2 order by \"a\" asc"
+	expectedSQL := `select "a", "b", "c" from "t1", "t2", "t3" where "blarg" > $1 and "foo" = $2 order by "a" asc`
 	if SQL != expectedSQL {
-		t.Error("Expected ", expectedSQL, " got ", SQL)
+		t.Error("Expected\n", expectedSQL, "\ngot\n", SQL)
 	}
 
 	expectedValues := []interface{}{10, "bar"}
+
+	if len(values) != len(expectedValues) {
+		t.Error("Expected ", expectedValues, " got ", values)
+	} else {
+		for index, value := range values {
+			if value != expectedValues[index] {
+				t.Error("Expected ", expectedValues, " got ", values)
+				break
+			}
+		}
+	}
+}
+
+func TestSelectWithAliases(t *testing.T) {
+	statement := sql.Select(map[string]string{
+		"a" : "c1",
+		"b": "c2",
+		"c": "c3",
+	}).From("t1");
+	SQL, values := statement.GenerateSQL()
+
+	expectedSQL := `select "a" as "c1", "b" as "c2", "c" as "c3" from "t1"`
+	if SQL != expectedSQL {
+		t.Error("Expected\n", expectedSQL, "\ngot\n", SQL)
+	}
+
+	expectedValues := []interface{}{}
 
 	if len(values) != len(expectedValues) {
 		t.Error("Expected ", expectedValues, " got ", values)
@@ -40,9 +67,9 @@ func TestSelectWithJoin(t *testing.T) {
 	}).OrderBy("a")
 	SQL, values := statement.GenerateSQL()
 
-	expectedSQL := "select a, b, c from \"t1\", \"t2\", \"t3\" where \"foo\" = $1 and \"blarg\" > $2 order by \"a\" asc"
+	expectedSQL := `select "a", "b", "c" from "t1", "t2", "t3" join "t4" on "t4"."id" = "t3"."parent_id" where "blarg" > $1 and "foo" = $2 order by "a" asc`
 	if SQL != expectedSQL {
-		t.Error("Expected ", expectedSQL, " got ", SQL)
+		t.Error("Expected\n", expectedSQL, "\ngot\n", SQL)
 	}
 
 	expectedValues := []interface{}{10, "bar"}

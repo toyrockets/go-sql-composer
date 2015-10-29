@@ -8,12 +8,13 @@ import (
 
 type InsertStatement struct {
 	table                SQLIdentifier
-	values               map[Column]SQLExpression
+	values               map[ColumnReference]SQLExpression
 	returningExpressions []SQLExpression
 }
 
 func (self *InsertStatement) GenerateSQL() (SQL string, values []interface{}) {
-	SQL, values = self.GenerateSQLWithContext(&SQLGenerationContext{Style: NumericStyle})
+	DefaultSQLGenerationContext.reset()
+	SQL, values = self.GenerateSQLWithContext(DefaultSQLGenerationContext)
 	return
 }
 
@@ -31,7 +32,7 @@ func (self *InsertStatement) GenerateSQLWithContext(context *SQLGenerationContex
 	for column := range self.values {
 		columnList = append(columnList, column)
 	}
-	sort.Sort(columnList)
+	sort.Stable(columnList)
 	for _, column := range columnList {
 		value := self.values[column]
 
@@ -68,27 +69,23 @@ func (self *InsertStatement) GenerateSQLWithContext(context *SQLGenerationContex
 
 func (self *InsertStatement) Values(values map[interface{}]interface{}) *InsertStatement {
 	if self.values == nil {
-		self.values = map[Column]SQLExpression{}
+		self.values = map[ColumnReference]SQLExpression{}
 	}
 
 	if len(values) > 0 {
 		for key, value := range values {
-			var column Column
+			var column ColumnReference
 			columnName, ok := key.(string)
 
 			if ok {
-				column = Column{Name: columnName}
+				column = ColumnReference{expression: &SQLIdentifier{Name: columnName}}
 			} else {
-				column, ok = key.(Column)
-
-				if !ok {
+				if column, ok = key.(ColumnReference); ok {
 					continue
 				}
 			}
 
-			valueExpression, ok := value.(SQLExpression)
-
-			if ok {
+			if valueExpression, ok := value.(SQLExpression); ok {
 				self.values[column] = valueExpression
 			} else {
 				expression := SQLVariable(value)

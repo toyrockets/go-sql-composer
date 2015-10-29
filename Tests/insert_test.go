@@ -15,7 +15,7 @@ func TestSimpleInsert(t *testing.T) {
 	})
 	SQL, values := statement.GenerateSQL()
 
-	result := "insert into \"user\" (blarg, created_at, foo) values ($1, $2, $3)"
+	result := `insert into "user" ("blarg", "created_at", "foo") values ($1, $2, $3)`
 	if SQL != result {
 		t.Error("Expected ", result, " got ", SQL)
 	}
@@ -47,7 +47,7 @@ func TestInsertWithSubSelect(t *testing.T) {
 	})
 	SQL, values := statement.GenerateSQL()
 
-	expectedSQL := "insert into \"user\" (blarg, foo, id) values ($1, $2, (select id from \"table1\" where \"external_id\" = $3))"
+	expectedSQL := `insert into "user" ("blarg", "foo", "id") values ($1, $2, (select "id" from "table1" where "external_id" = $3))`
 	if SQL != expectedSQL {
 		t.Error("Expected ", expectedSQL, " got ", SQL)
 	}
@@ -73,7 +73,7 @@ func TestInsertWithFunction(t *testing.T) {
 	})
 	SQL, values := statement.GenerateSQL()
 
-	expectedSQL := "insert into \"user\" (password) values (crypt($1, gen_salt($2)))"
+	expectedSQL := `insert into "user" ("password") values (crypt($1, gen_salt($2)))`
 	if SQL != expectedSQL {
 		t.Error("Expected ", expectedSQL, " got ", SQL)
 	}
@@ -101,7 +101,7 @@ func TestInsertWithReturning(t *testing.T) {
 	}).Returning("*")
 	SQL, values := statement.GenerateSQL()
 
-	result := "insert into \"user\" (blarg, created_at, foo) values ($1, $2, $3) returning *"
+	result := `insert into "user" ("blarg", "created_at", "foo") values ($1, $2, $3) returning *`
 	if SQL != result {
 		t.Error("Expected ", result, " got ", SQL)
 	}

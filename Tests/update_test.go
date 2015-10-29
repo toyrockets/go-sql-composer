@@ -13,7 +13,7 @@ func TestSimpleUpdate(t *testing.T) {
 	})
 	SQL, values := statement.GenerateSQL()
 
-	result := "update \"user\" set foo = $1, blarg = $2, wongle = null"
+	result := `update "user" set "blarg" = $1, "foo" = $2, "wongle" = null`
 	if SQL != result {
 		t.Error("Expected ", result, " got ", SQL)
 	}
@@ -40,7 +40,7 @@ func TestUpdateWithReturningClause(t *testing.T) {
 	}).Returning("*")
 	SQL, values := statement.GenerateSQL()
 
-	result := "update \"user\" set foo = $1, blarg = $2 returning *"
+	result := `update "user" set "blarg" = $1, "foo" = $2 returning *`
 	if SQL != result {
 		t.Error("Expected ", result, " got ", SQL)
 	}

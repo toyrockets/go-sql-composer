@@ -2,6 +2,7 @@ package sqlcomposer
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 )
 
@@ -23,9 +24,29 @@ type Predicate interface {
 	GenerateSQLWithContext(context *SQLGenerationContext) (SQL string, values []interface{})
 }
 
+type PredicateList []Predicate
+
+func (predicates PredicateList) Len() int {
+	return len(predicates)
+}
+func (predicates PredicateList) Swap(i, j int) {
+	predicates[i], predicates[j] = predicates[j], predicates[i]
+}
+func (predicates PredicateList) Less(i, j int) bool {
+	context := *DefaultSQLGenerationContext
+	context.reset()
+
+	predicate_i := predicates[i]
+	predicate_j := predicates[j]
+
+	sql_i, _ := predicate_i.GenerateSQLWithContext(&context)
+	sql_j, _ := predicate_j.GenerateSQLWithContext(&context)
+	return sql_i < sql_j
+}
+
 type ComparisonPredicate struct {
-	leftValue  *SQLExpression
-	rightValue *SQLExpression
+	leftValue  SQLExpression
+	rightValue SQLExpression
 	operator   ComparisonOperator
 }
 
@@ -35,15 +56,14 @@ func (self *ComparisonPredicate) GeneratePredicateSQL() (SQL string, values []in
 }
 
 func (self *ComparisonPredicate) GenerateSQL() (SQL string, values []interface{}) {
-	SQL, values = self.GenerateSQLWithContext(&SQLGenerationContext{Style: DefaultStyle})
+	DefaultSQLGenerationContext.reset()
+	SQL, values = self.GenerateSQLWithContext(DefaultSQLGenerationContext)
 	return
 }
 
 func (self *ComparisonPredicate) GenerateSQLWithContext(context *SQLGenerationContext) (SQL string, values []interface{}) {
-	var left SQLExpression = *(self.leftValue)
-	var right SQLExpression = *(self.rightValue)
-	leftSQL, leftValues := left.GenerateSQLWithContext(context)
-	rightSQL, rightValues := right.GenerateSQLWithContext(context)
+	leftSQL, leftValues := self.leftValue.GenerateSQLWithContext(context)
+	rightSQL, rightValues := self.rightValue.GenerateSQLWithContext(context)
 
 	values = []interface{}{}
 	values = append(values, leftValues...)
@@ -54,7 +74,7 @@ func (self *ComparisonPredicate) GenerateSQLWithContext(context *SQLGenerationCo
 }
 
 type AndPredicate struct {
-	predicates []Predicate
+	predicates PredicateList
 }
 
 func (self *AndPredicate) GeneratePredicateSQL() (SQL string, values []interface{}) {
@@ -63,13 +83,15 @@ func (self *AndPredicate) GeneratePredicateSQL() (SQL string, values []interface
 }
 
 func (self *AndPredicate) GenerateSQL() (SQL string, values []interface{}) {
-	SQL, values = self.GenerateSQLWithContext(&SQLGenerationContext{Style: DefaultStyle})
+	DefaultSQLGenerationContext.reset()
+	SQL, values = self.GenerateSQLWithContext(DefaultSQLGenerationContext)
 	return
 }
 
 func (self *AndPredicate) GenerateSQLWithContext(context *SQLGenerationContext) (SQL string, values []interface{}) {
 	var sqlFragments []string
 
+	sort.Stable(self.predicates)
 	for _, predicate := range self.predicates {
 		predicateSQL, predicateValues := predicate.GenerateSQLWithContext(context)
 
@@ -88,7 +110,7 @@ func (self *AndPredicate) GenerateSQLWithContext(context *SQLGenerationContext) 
 }
 
 type OrPredicate struct {
-	predicates []Predicate
+	predicates PredicateList
 }
 
 func (self *OrPredicate) GeneratePredicateSQL() (SQL string, values []interface{}) {
@@ -97,7 +119,8 @@ func (self *OrPredicate) GeneratePredicateSQL() (SQL string, values []interface{
 }
 
 func (self *OrPredicate) GenerateSQL() (SQL string, values []interface{}) {
-	SQL, values = self.GenerateSQLWithContext(&SQLGenerationContext{Style: DefaultStyle})
+	DefaultSQLGenerationContext.reset()
+	SQL, values = self.GenerateSQLWithContext(DefaultSQLGenerationContext)
 	return
 }
 
@@ -105,6 +128,7 @@ func (self *OrPredicate) GenerateSQLWithContext(context *SQLGenerationContext) (
 	var sqlFragments []string
 	values = []interface{}{}
 
+	sort.Stable(self.predicates)
 	for _, predicate := range self.predicates {
 		predicateSQL, predicateValues := predicate.GenerateSQLWithContext(context)
 
@@ -132,7 +156,8 @@ func (self *NotPredicate) GeneratePredicateSQL() (SQL string, values []interface
 }
 
 func (self *NotPredicate) GenerateSQL() (SQL string, values []interface{}) {
-	SQL, values = self.GenerateSQLWithContext(&SQLGenerationContext{Style: DefaultStyle})
+	DefaultSQLGenerationContext.reset()
+	SQL, values = self.GenerateSQLWithContext(DefaultSQLGenerationContext)
 	return
 }
 
@@ -153,7 +178,8 @@ func (self *InPredicate) GeneratePredicateSQL() (SQL string, values []interface{
 }
 
 func (self *InPredicate) GenerateSQL() (SQL string, values []interface{}) {
-	SQL, values = self.GenerateSQLWithContext(&SQLGenerationContext{Style: DefaultStyle})
+	DefaultSQLGenerationContext.reset()
+	SQL, values = self.GenerateSQLWithContext(DefaultSQLGenerationContext)
 	return
 }
 
@@ -227,9 +253,9 @@ func ParsePredicateMap(values map[interface{}]interface{}) []Predicate {
 		predicate, ok := value.(*ComparisonPredicate)
 
 		if ok {
-			predicate.leftValue = &leftValue
+			predicate.leftValue = leftValue
 		} else {
-			predicate = &ComparisonPredicate{leftValue: &leftValue, rightValue: &rightValue, operator: EqualOperator}
+			predicate = &ComparisonPredicate{leftValue: leftValue, rightValue: rightValue, operator: EqualOperator}
 		}
 
 		predicates = append(predicates, predicate)
@@ -271,30 +297,30 @@ func Not(values ...interface{}) *NotPredicate {
 
 func Equal(value interface{}) *ComparisonPredicate {
 	rightValue := ParsePredicateRightValue(value)
-	return &ComparisonPredicate{leftValue: nil, rightValue: &rightValue, operator: EqualOperator}
+	return &ComparisonPredicate{leftValue: nil, rightValue: rightValue, operator: EqualOperator}
 }
 
 func NotEqual(value interface{}) *ComparisonPredicate {
 	rightValue := ParsePredicateRightValue(value)
-	return &ComparisonPredicate{leftValue: nil, rightValue: &rightValue, operator: NotEqualOperator}
+	return &ComparisonPredicate{leftValue: nil, rightValue: rightValue, operator: NotEqualOperator}
 }
 
 func LessThan(value interface{}) *ComparisonPredicate {
 	rightValue := ParsePredicateRightValue(value)
-	return &ComparisonPredicate{leftValue: nil, rightValue: &rightValue, operator: LessThanOperator}
+	return &ComparisonPredicate{leftValue: nil, rightValue: rightValue, operator: LessThanOperator}
 }
 
 func LessThanOrEqual(value interface{}) *ComparisonPredicate {
 	rightValue := ParsePredicateRightValue(value)
-	return &ComparisonPredicate{leftValue: nil, rightValue: &rightValue, operator: LessThanOrEqualOperator}
+	return &ComparisonPredicate{leftValue: nil, rightValue: rightValue, operator: LessThanOrEqualOperator}
 }
 
 func GreaterThan(value interface{}) *ComparisonPredicate {
 	rightValue := ParsePredicateRightValue(value)
-	return &ComparisonPredicate{leftValue: nil, rightValue: &rightValue, operator: GreaterThanOperator}
+	return &ComparisonPredicate{leftValue: nil, rightValue: rightValue, operator: GreaterThanOperator}
 }
 
 func GreaterThanOrEqual(value interface{}) *ComparisonPredicate {
 	rightValue := ParsePredicateRightValue(value)
-	return &ComparisonPredicate{leftValue: nil, rightValue: &rightValue, operator: GreaterThanOrEqualOperator}
+	return &ComparisonPredicate{leftValue: nil, rightValue: rightValue, operator: GreaterThanOrEqualOperator}
 }

@@ -13,7 +13,7 @@ func TestSimpleDelete(t *testing.T) {
 	})
 	SQL, values := statement.GenerateSQL()
 
-	result := "delete from \"user\" where \"foo\" = $1 and \"blarg\" = $2 and \"wongle\" = null"
+	result := `delete from "user" where "blarg" = $1 and "foo" = $2 and "wongle" = null`
 	if SQL != result {
 		t.Error("Expected ", result, " got ", SQL)
 	}

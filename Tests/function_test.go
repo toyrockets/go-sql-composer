@@ -11,7 +11,7 @@ func TestFunction(t *testing.T) {
 
 	expectedValues := []interface{}{"fooble", "bf"}
 
-	expectedSQL := "crypt($1, gen_salt($2))"
+	expectedSQL := `crypt($1, gen_salt($2))`
 	if SQL != expectedSQL {
 		t.Error("Expected ", expectedSQL, " got ", SQL)
 	}

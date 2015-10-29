@@ -21,12 +21,17 @@ type Join struct {
 }
 
 func (self *Join) GenerateSQL() (SQL string, values []interface{}) {
-	SQL, values = self.GenerateSQLWithContext(&SQLGenerationContext{Style: DefaultStyle})
+	DefaultSQLGenerationContext.reset()
+	SQL, values = self.GenerateSQLWithContext(DefaultSQLGenerationContext)
 	return
 }
 
 func (self *Join) GenerateSQLWithContext(context *SQLGenerationContext) (SQL string, values []interface{}) {
-	SQL = fmt.Sprintf(" %s join ", self.joinType)
+	if len(self.joinType) > 0 {
+		SQL = fmt.Sprintf("%s join ", self.joinType)
+	} else {
+		SQL = "join "
+	}
 
 	tableSQL, tableValues := self.tableReference.GenerateSQLWithContext(context)
 	SQL += tableSQL
