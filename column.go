@@ -6,7 +6,7 @@ import (
 
 type ColumnReference struct {
 	expression SQLExpression
-	alias      *SQLIdentifier
+	alias      *SQLAlias
 }
 
 func (self *ColumnReference) GenerateSQL() (SQL string, values []interface{}) {

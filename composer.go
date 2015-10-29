@@ -51,8 +51,6 @@ func (self *SQLGenerationContext) GetNextParameterName() string {
 
 }
 
-//func (self *SQLGenerationContext) GetBindVariableName
-
 type SQLExpression interface {
 	GenerateSQL() (SQL string, values []interface{})
 	GenerateSQLWithContext(context *SQLGenerationContext) (SQL string, values []interface{})
@@ -74,6 +72,29 @@ func (self *SQLIdentifier) GenerateSQLWithContext(context *SQLGenerationContext)
 	if context.QuoteIdentifiers {
 		components := strings.Split(self.Name, ".")
 		SQL = fmt.Sprintf("\"%s\"", strings.Join(components, "\".\""))
+	} else {
+		SQL = self.Name
+	}
+
+	values = []interface{}{}
+	return
+}
+
+// Alias
+
+type SQLAlias struct {
+	Name string
+}
+
+func (self *SQLAlias) GenerateSQL() (SQL string, values []interface{}) {
+	DefaultSQLGenerationContext.reset()
+	SQL, values = self.GenerateSQLWithContext(DefaultSQLGenerationContext)
+	return
+}
+
+func (self *SQLAlias) GenerateSQLWithContext(context *SQLGenerationContext) (SQL string, values []interface{}) {
+	if context.QuoteIdentifiers {
+		SQL = fmt.Sprintf("\"%s\"", self.Name)
 	} else {
 		SQL = self.Name
 	}
@@ -110,6 +131,8 @@ func (self *TableReference) GenerateSQLWithContext(context *SQLGenerationContext
 	values = []interface{}{}
 	return
 }
+
+//type TableAlias (string, string)
 
 type Table struct {
 	Name string

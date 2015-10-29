@@ -156,11 +156,11 @@ func ParseSelectMap(values map[string]interface{}) []SQLExpression {
 	expressions := []SQLExpression{}
 
 	for key, value := range values {
-		var alias *SQLIdentifier = nil
+		var alias *SQLAlias = nil
 		
 		switch aliasName := value.(type) {
 		case string:
-			alias = &SQLIdentifier{Name: aliasName}
+			alias = &SQLAlias{Name: aliasName}
 		default:
 			alias = nil
 		}
