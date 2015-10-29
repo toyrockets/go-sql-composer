@@ -8,6 +8,7 @@ import (
 type SelectStatement struct {
 	selectList      []SQLExpression
 	tableReferences []TableReference
+	joins           []*Join
 	predicates      []Predicate
 	sortDescriptors []*SortDescriptor
 }
@@ -42,6 +43,18 @@ func (self *SelectStatement) GenerateSQLWithContext(context *SQLGenerationContex
 		}
 
 		SQL += " from " + strings.Join(sqlFragments, ", ")
+	}
+
+	if len(self.joins) > 0 {
+		sqlFragments = []string{}
+
+		for _, join := range self.joins {
+			joinSQL, joinValues := join.GenerateSQLWithContext(context)
+			sqlFragments = append(sqlFragments, joinSQL)
+			values = append(values, joinValues...)
+		}
+
+		SQL += fmt.Sprintf(" %s", strings.Join(sqlFragments, " "))
 	}
 
 	if len(self.predicates) > 0 {
@@ -79,6 +92,24 @@ func (self *SelectStatement) From(tables ...interface{}) *SelectStatement {
 		}
 	}
 
+	return self
+}
+
+func (self *SelectStatement) join(joinType JoinType, table string, predicates ...interface{}) *SelectStatement {
+	if self.joins == nil {
+		self.joins = []*Join{}
+	}
+
+	tableReference := &TableReference{tableExpression: &Table{Name: table}}
+	joinPredicates := And(predicates...)
+	join := &Join{joinType: joinType, tableReference: tableReference, condition: joinPredicates}
+	self.joins = append(self.joins, join)
+
+	return self
+}
+
+func (self *SelectStatement) Join(table string, predicates ...interface{}) *SelectStatement {
+	self.join(InnerJoin, table, predicates...)
 	return self
 }
 

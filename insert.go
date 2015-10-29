@@ -7,8 +7,8 @@ import (
 )
 
 type InsertStatement struct {
-	table  SQLIdentifier
-	values map[Column]SQLExpression
+	table                SQLIdentifier
+	values               map[Column]SQLExpression
 	returningExpressions []SQLExpression
 }
 
@@ -50,7 +50,7 @@ func (self *InsertStatement) GenerateSQLWithContext(context *SQLGenerationContex
 	}
 
 	SQL += fmt.Sprintf(" (%s) values (%s)", strings.Join(columnFragments, ", "), strings.Join(valueFragments, ", "))
-	
+
 	if len(self.returningExpressions) > 0 {
 		sqlFragments := []string{}
 
@@ -62,7 +62,7 @@ func (self *InsertStatement) GenerateSQLWithContext(context *SQLGenerationContex
 
 		SQL += fmt.Sprintf(" returning %s", strings.Join(sqlFragments, ", "))
 	}
-	
+
 	return
 }
 

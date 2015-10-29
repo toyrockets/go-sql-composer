@@ -29,5 +29,34 @@ func TestSimpleSelect(t *testing.T) {
 			}
 		}
 	}
+}
+
+func TestSelectWithJoin(t *testing.T) {
+	statement := sql.Select("a", "b", "c").From("t1", "t2", "t3").Where(map[string]interface{}{
+		"foo":   "bar",
+		"blarg": sql.GreaterThan(10),
+	}).Join("t4", map[string]interface{}{
+		"t4.id": &sql.SQLIdentifier{Name: "t3.parent_id"},
+	}).OrderBy("a")
+	SQL, values := statement.GenerateSQL()
+
+	expectedSQL := "select a, b, c from \"t1\", \"t2\", \"t3\" where \"foo\" = $1 and \"blarg\" > $2 order by \"a\" asc"
+	if SQL != expectedSQL {
+		t.Error("Expected ", expectedSQL, " got ", SQL)
+	}
+
+	expectedValues := []interface{}{10, "bar"}
+
+	if len(values) != len(expectedValues) {
+		t.Error("Expected ", expectedValues, " got ", values)
+	} else {
+		for index, value := range values {
+			if value != expectedValues[index] {
+				t.Error("Expected ", expectedValues, " got ", values)
+				break
+			}
+		}
+	}
 
 }
+

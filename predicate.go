@@ -183,17 +183,13 @@ func ParsePredicates(values ...interface{}) []Predicate {
 	predicates := []Predicate{}
 
 	for _, value := range values {
-		predicateMap, ok := value.(map[interface{}]interface{})
-
-		if ok {
+		if predicateMap, ok := value.(map[interface{}]interface{}); ok {
 			subpredicates := ParsePredicateMap(predicateMap)
 			predicates = append(predicates, subpredicates...)
 			continue
 		}
 
-		predicateMap2, ok := value.(map[string]interface{})
-
-		if ok {
+		if predicateMap2, ok := value.(map[string]interface{}); ok {
 			fooble := map[interface{}]interface{}{}
 
 			for k, v := range predicateMap2 {
@@ -204,9 +200,7 @@ func ParsePredicates(values ...interface{}) []Predicate {
 			continue
 		}
 
-		predicate, ok := value.(Predicate)
-
-		if ok {
+		if predicate, ok := value.(Predicate); ok {
 			predicates = append(predicates, predicate)
 			continue
 		}
@@ -222,9 +216,7 @@ func ParsePredicateMap(values map[interface{}]interface{}) []Predicate {
 	for key, value := range values {
 		var leftValue SQLExpression
 
-		stringValue, ok := key.(string)
-
-		if ok {
+		if stringValue, ok := key.(string); ok {
 			leftValue = &SQLIdentifier{Name: stringValue}
 		} else {
 			leftValue = SQLVariable(key)
