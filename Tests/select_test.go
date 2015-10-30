@@ -10,25 +10,12 @@ func TestSimpleSelect(t *testing.T) {
 		"foo":   "bar",
 		"blarg": sql.GreaterThan(10),
 	}).OrderBy("a")
-	SQL, values := statement.GenerateSQL()
+	actualSQL, actualValues := statement.GenerateSQL()
 
 	expectedSQL := `select "a", "b", "c" from "t1", "t2", "t3" where "blarg" > $1 and "foo" = $2 order by "a" asc`
-	if SQL != expectedSQL {
-		t.Error("Expected\n", expectedSQL, "\ngot\n", SQL)
-	}
-
 	expectedValues := []interface{}{10, "bar"}
 
-	if len(values) != len(expectedValues) {
-		t.Error("Expected ", expectedValues, " got ", values)
-	} else {
-		for index, value := range values {
-			if value != expectedValues[index] {
-				t.Error("Expected ", expectedValues, " got ", values)
-				break
-			}
-		}
-	}
+	CompareTestResults(t, expectedSQL, actualSQL, expectedValues, actualValues)
 }
 
 func TestSelectWithAliases(t *testing.T) {
@@ -40,25 +27,12 @@ func TestSelectWithAliases(t *testing.T) {
 		"t1": "t.1",
 		"t2": nil,
 	});
-	SQL, values := statement.GenerateSQL()
+	actualSQL, actualValues := statement.GenerateSQL()
 
 	expectedSQL := `select "a" as "c1", "b" as "c.2", "c" from "t1" as "t.1", "t2"`
-	if SQL != expectedSQL {
-		t.Error("Expected\n", expectedSQL, "\ngot\n", SQL)
-	}
-
 	expectedValues := []interface{}{}
 
-	if len(values) != len(expectedValues) {
-		t.Error("Expected ", expectedValues, " got ", values)
-	} else {
-		for index, value := range values {
-			if value != expectedValues[index] {
-				t.Error("Expected ", expectedValues, " got ", values)
-				break
-			}
-		}
-	}
+	CompareTestResults(t, expectedSQL, actualSQL, expectedValues, actualValues)
 }
 
 func TestSelectWithJoin(t *testing.T) {
@@ -68,25 +42,11 @@ func TestSelectWithJoin(t *testing.T) {
 	}).Join("t4", map[string]interface{}{
 		"t4.id": &sql.SQLIdentifier{Name: "t3.parent_id"},
 	}).OrderBy("a")
-	SQL, values := statement.GenerateSQL()
+	actualSQL, actualValues := statement.GenerateSQL()
 
 	expectedSQL := `select "a", "b", "c" from "t1", "t2", "t3" join "t4" on "t4"."id" = "t3"."parent_id" where "blarg" > $1 and "foo" = $2 order by "a" asc`
-	if SQL != expectedSQL {
-		t.Error("Expected\n", expectedSQL, "\ngot\n", SQL)
-	}
-
 	expectedValues := []interface{}{10, "bar"}
 
-	if len(values) != len(expectedValues) {
-		t.Error("Expected ", expectedValues, " got ", values)
-	} else {
-		for index, value := range values {
-			if value != expectedValues[index] {
-				t.Error("Expected ", expectedValues, " got ", values)
-				break
-			}
-		}
-	}
-
+	CompareTestResults(t, expectedSQL, actualSQL, expectedValues, actualValues)
 }
 

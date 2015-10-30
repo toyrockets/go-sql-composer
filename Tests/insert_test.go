@@ -13,26 +13,12 @@ func TestSimpleInsert(t *testing.T) {
 		"blarg":      10,
 		"created_at": time,
 	})
-	SQL, values := statement.GenerateSQL()
+	actualSQL, actualValues := statement.GenerateSQL()
 
-	result := `insert into "user" ("blarg", "created_at", "foo") values ($1, $2, $3)`
-	if SQL != result {
-		t.Error("Expected ", result, " got ", SQL)
-	}
-
+	expectedSQL := `insert into "user" ("blarg", "created_at", "foo") values ($1, $2, $3)`
 	expectedValues := []interface{}{10, time, "bar"}
 
-	if len(values) != len(expectedValues) {
-		t.Error("Expected ", expectedValues, " got ", values)
-	} else {
-		for index, value := range values {
-			if value != expectedValues[index] {
-				t.Error("Expected ", expectedValues, " got ", values)
-				break
-			}
-		}
-	}
-
+	CompareTestResults(t, expectedSQL, actualSQL, expectedValues, actualValues)
 }
 
 func TestInsertWithSubSelect(t *testing.T) {
@@ -45,51 +31,24 @@ func TestInsertWithSubSelect(t *testing.T) {
 		"blarg": 10,
 		"id":    selectStatement,
 	})
-	SQL, values := statement.GenerateSQL()
+	actualSQL, actualValues := statement.GenerateSQL()
 
 	expectedSQL := `insert into "user" ("blarg", "foo", "id") values ($1, $2, (select "id" from "table1" where "external_id" = $3))`
-	if SQL != expectedSQL {
-		t.Error("Expected ", expectedSQL, " got ", SQL)
-	}
-
 	expectedValues := []interface{}{10, "bar", 10}
 
-	if len(values) != len(expectedValues) {
-		t.Error("Expected ", expectedValues, " got ", values)
-	} else {
-		for index, value := range values {
-			if value != expectedValues[index] {
-				t.Error("Expected ", expectedValues, " got ", values)
-				break
-			}
-		}
-	}
-
+	CompareTestResults(t, expectedSQL, actualSQL, expectedValues, actualValues)
 }
 
 func TestInsertWithFunction(t *testing.T) {
 	statement := sql.Insert("user").Values(map[interface{}]interface{}{
 		"password": sql.Func("crypt", "fooble", sql.Func("gen_salt", "bf")),
 	})
-	SQL, values := statement.GenerateSQL()
+	actualSQL, actualValues := statement.GenerateSQL()
 
 	expectedSQL := `insert into "user" ("password") values (crypt($1, gen_salt($2)))`
-	if SQL != expectedSQL {
-		t.Error("Expected ", expectedSQL, " got ", SQL)
-	}
-
 	expectedValues := []interface{}{"fooble", "bf"}
 
-	if len(values) != len(expectedValues) {
-		t.Error("Expected ", expectedValues, " got ", values)
-	} else {
-		for index, value := range values {
-			if value != expectedValues[index] {
-				t.Error("Expected ", expectedValues, " got ", values)
-				break
-			}
-		}
-	}
+	CompareTestResults(t, expectedSQL, actualSQL, expectedValues, actualValues)
 }
 
 func TestInsertWithReturning(t *testing.T) {
@@ -99,24 +58,11 @@ func TestInsertWithReturning(t *testing.T) {
 		"blarg":      10,
 		"created_at": time,
 	}).Returning("*")
-	SQL, values := statement.GenerateSQL()
+	actualSQL, actualValues := statement.GenerateSQL()
 
-	result := `insert into "user" ("blarg", "created_at", "foo") values ($1, $2, $3) returning *`
-	if SQL != result {
-		t.Error("Expected ", result, " got ", SQL)
-	}
-
+	expectedSQL := `insert into "user" ("blarg", "created_at", "foo") values ($1, $2, $3) returning *`
 	expectedValues := []interface{}{10, time, "bar"}
 
-	if len(values) != len(expectedValues) {
-		t.Error("Expected ", expectedValues, " got ", values)
-	} else {
-		for index, value := range values {
-			if value != expectedValues[index] {
-				t.Error("Expected ", expectedValues, " got ", values)
-				break
-			}
-		}
-	}
+	CompareTestResults(t, expectedSQL, actualSQL, expectedValues, actualValues)
 }
 

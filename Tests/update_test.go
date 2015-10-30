@@ -11,26 +11,12 @@ func TestSimpleUpdate(t *testing.T) {
 		"blarg":  10,
 		"wongle": nil,
 	})
-	SQL, values := statement.GenerateSQL()
+	actualSQL, actualValues := statement.GenerateSQL()
 
-	result := `update "user" set "blarg" = $1, "foo" = $2, "wongle" = null`
-	if SQL != result {
-		t.Error("Expected ", result, " got ", SQL)
-	}
-
+	expectedSQL := `update "user" set "blarg" = $1, "foo" = $2, "wongle" = null`
 	expectedValues := []interface{}{10, "bar"}
 
-	if len(values) != len(expectedValues) {
-		t.Error("Expected ", expectedValues, " got ", values)
-	} else {
-		for index, value := range values {
-			if value != expectedValues[index] {
-				t.Error("Expected ", expectedValues, " got ", values)
-				break
-			}
-		}
-	}
-
+	CompareTestResults(t, expectedSQL, actualSQL, expectedValues, actualValues)
 }
 
 func TestUpdateWithReturningClause(t *testing.T) {
@@ -38,24 +24,10 @@ func TestUpdateWithReturningClause(t *testing.T) {
 		"foo":   "bar",
 		"blarg": 10,
 	}).Returning("*")
-	SQL, values := statement.GenerateSQL()
+	actualSQL, actualValues := statement.GenerateSQL()
 
-	result := `update "user" set "blarg" = $1, "foo" = $2 returning *`
-	if SQL != result {
-		t.Error("Expected ", result, " got ", SQL)
-	}
-
+	expectedSQL := `update "user" set "blarg" = $1, "foo" = $2 returning *`
 	expectedValues := []interface{}{10, "bar"}
 
-	if len(values) != len(expectedValues) {
-		t.Error("Expected ", expectedValues, " got ", values)
-	} else {
-		for index, value := range values {
-			if value != expectedValues[index] {
-				t.Error("Expected ", expectedValues, " got ", values)
-				break
-			}
-		}
-	}
-
+	CompareTestResults(t, expectedSQL, actualSQL, expectedValues, actualValues)
 }

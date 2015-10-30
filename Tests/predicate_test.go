@@ -10,24 +10,23 @@ func TestAndPredicate(t *testing.T) {
 		"foo":   "bar",
 		"blarg": 10,
 	})
-	SQL, values := andPredicate.GenerateSQL()
-
-	expectedValues := []interface{}{10, "bar"}
-
-	if len(values) != len(expectedValues) {
-		t.Error("Expected ", expectedValues, " got ", values)
-	} else {
-		for index, value := range values {
-			if value != expectedValues[index] {
-				t.Error("Expected ", expectedValues, " got ", values)
-				break
-			}
-		}
-	}
+	actualSQL, actualValues := andPredicate.GenerateSQL()
 
 	expectedSQL := `"blarg" = $1 and "foo" = $2`
-	if SQL != expectedSQL {
-		t.Error("Expected ", expectedSQL, " got ", SQL)
-	}
+	expectedValues := []interface{}{10, "bar"}
 
+	CompareTestResults(t, expectedSQL, actualSQL, expectedValues, actualValues)
+}
+
+func TestOrPredicate(t *testing.T) {
+	orPredicate := sql.Or(map[string]interface{}{
+		"foo":   "bar",
+		"blarg": 10,
+	})
+	actualSQL, actualValues := orPredicate.GenerateSQL()
+
+	expectedSQL := `"blarg" = $1 or "foo" = $2`
+	expectedValues := []interface{}{10, "bar"}
+	
+	CompareTestResults(t, expectedSQL, actualSQL, expectedValues, actualValues)
 }
