@@ -8,7 +8,7 @@ import (
 
 type UpdateStatement struct {
 	table                Table
-	values               map[ColumnReference]SQLExpression
+	values               map[*ColumnReference]SQLExpression
 	predicates           []Predicate
 	returningExpressions []SQLExpression
 }
@@ -72,12 +72,12 @@ func (self *UpdateStatement) GenerateSQLWithContext(context *SQLGenerationContex
 
 func (self *UpdateStatement) Set(values map[string]interface{}) *UpdateStatement {
 	if self.values == nil {
-		self.values = map[ColumnReference]SQLExpression{}
+		self.values = map[*ColumnReference]SQLExpression{}
 	}
 
 	if len(values) > 0 {
 		for key, value := range values {
-			column := ColumnReference{expression: &SQLIdentifier{Name: key}}
+			column := &ColumnReference{expression: &SQLIdentifier{Name: key}}
 			expression := SQLVariable(value)
 
 			if expression != nil {

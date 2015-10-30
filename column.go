@@ -29,7 +29,7 @@ func (self *ColumnReference) GenerateSQLWithContext(context *SQLGenerationContex
 	return
 }
 
-type ColumnList []ColumnReference
+type ColumnList []*ColumnReference
 
 func (columns ColumnList) Len() int {
 	return len(columns)
@@ -38,8 +38,12 @@ func (columns ColumnList) Swap(i, j int) {
 	columns[i], columns[j] = columns[j], columns[i]
 }
 func (columns ColumnList) Less(i, j int) bool {
+	context := *DefaultSQLGenerationContext
+	context.reset()
+
 	column_i := columns[i]
 	column_j := columns[j]
+
 	sql_i, _ := column_i.expression.GenerateSQL()
 	sql_j, _ := column_j.expression.GenerateSQL()
 	return sql_i < sql_j

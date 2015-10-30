@@ -8,7 +8,7 @@ import (
 
 type InsertStatement struct {
 	table                SQLIdentifier
-	values               map[ColumnReference]SQLExpression
+	values               map[*ColumnReference]SQLExpression
 	returningExpressions []SQLExpression
 }
 
@@ -69,18 +69,18 @@ func (self *InsertStatement) GenerateSQLWithContext(context *SQLGenerationContex
 
 func (self *InsertStatement) Values(values map[interface{}]interface{}) *InsertStatement {
 	if self.values == nil {
-		self.values = map[ColumnReference]SQLExpression{}
+		self.values = map[*ColumnReference]SQLExpression{}
 	}
 
 	if len(values) > 0 {
 		for key, value := range values {
-			var column ColumnReference
+			var column *ColumnReference
 			columnName, ok := key.(string)
 
 			if ok {
-				column = ColumnReference{expression: &SQLIdentifier{Name: columnName}}
+				column = &ColumnReference{expression: &SQLIdentifier{Name: columnName}}
 			} else {
-				if column, ok = key.(ColumnReference); ok {
+				if column, ok = key.(*ColumnReference); ok {
 					continue
 				}
 			}

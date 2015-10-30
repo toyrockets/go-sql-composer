@@ -103,15 +103,9 @@ func (self *SQLAlias) GenerateSQLWithContext(context *SQLGenerationContext) (SQL
 	return
 }
 
-type TableExpression interface {
-	GenerateSQL() (SQL string, values []interface{})
-	GenerateSQLWithContext(context *SQLGenerationContext) (SQL string, values []interface{})
-	GenerateTableExpressionSQLWithContext(contextr *SQLGenerationContext) (SQL string, values []interface{})
-}
-
 type TableReference struct {
-	tableExpression TableExpression
-	alias           *string
+	tableExpression SQLExpression
+	alias           *SQLAlias
 }
 
 func (self *TableReference) GenerateSQL() (SQL string, values []interface{}) {
@@ -121,18 +115,20 @@ func (self *TableReference) GenerateSQL() (SQL string, values []interface{}) {
 }
 
 func (self *TableReference) GenerateSQLWithContext(context *SQLGenerationContext) (SQL string, values []interface{}) {
-	expressionSQL, _ := self.tableExpression.GenerateSQLWithContext(context)
+	expressionSQL, values := self.tableExpression.GenerateSQLWithContext(context)
 	SQL = expressionSQL
 
 	if self.alias != nil {
-		SQL += fmt.Sprintf(" as %s", *self.alias)
+		aliasSQL, aliasValues := self.alias.GenerateSQLWithContext(context)
+		values = append(values, aliasValues...)
+		SQL = fmt.Sprintf("%s as %s", expressionSQL, aliasSQL)
+	} else {
+		SQL = expressionSQL
 	}
 
 	values = []interface{}{}
 	return
 }
-
-//type TableAlias (string, string)
 
 type Table struct {
 	Name string

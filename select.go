@@ -2,12 +2,13 @@ package sqlcomposer
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 )
 
 type SelectStatement struct {
-	selectList      []SQLExpression
-	tableReferences []TableReference
+	selectList      ColumnList
+	tableReferences []*TableReference
 	joins           []*Join
 	predicates      []Predicate
 	sortDescriptors []*SortDescriptor
@@ -26,6 +27,7 @@ func (self *SelectStatement) GenerateSQLWithContext(context *SQLGenerationContex
 
 	sqlFragments = []string{}
 
+	sort.Stable(self.selectList)
 	for _, expression := range self.selectList {
 		expressionSQL, selectListValues := expression.GenerateSQLWithContext(context)
 		sqlFragments = append(sqlFragments, expressionSQL)
@@ -82,11 +84,18 @@ func (self *SelectStatement) GenerateSQLWithContext(context *SQLGenerationContex
 }
 
 func (self *SelectStatement) From(tables ...interface{}) *SelectStatement {
+	if self.tableReferences == nil {
+		self.tableReferences = []*TableReference{}
+	}
+
 	if len(tables) > 0 {
 		for _, val := range tables {
 			if stringValue, ok := val.(string); ok {
-				tableReference := TableReference{tableExpression: &Table{Name: stringValue}}
+				tableReference := &TableReference{tableExpression: &Table{Name: stringValue}}
 				self.tableReferences = append(self.tableReferences, tableReference)
+			} else if mapValue, ok := val.(map[string]interface{}); ok {
+				tableReferences := ParseFromMap(mapValue)
+				self.tableReferences = append(self.tableReferences, tableReferences...)
 			} else {
 				fmt.Println("No clue what this is: ", val)
 			}
@@ -136,28 +145,28 @@ func (self *SelectStatement) OrderBy(descriptors ...interface{}) *SelectStatemen
 }
 
 func Select(selectList ...interface{}) *SelectStatement {
-	expressions := []SQLExpression{}
+	references := []*ColumnReference{}
 
 	for _, val := range selectList {
 		if stringValue, ok := val.(string); ok {
-			expressions = append(expressions, &ColumnReference{expression: &SQLIdentifier{Name: stringValue}})
+			references = append(references, &ColumnReference{expression: &SQLIdentifier{Name: stringValue}})
 		} else if mapValue, ok := val.(map[string]interface{}); ok {
-			columnExpressions := ParseSelectMap(mapValue)
-			expressions = append(expressions, columnExpressions...)
+			columnReferences := ParseSelectMap(mapValue)
+			references = append(references, columnReferences...)
 		} else {
 			fmt.Println("No clue what this is: ", val)
 		}
 	}
 
-	return &SelectStatement{selectList: expressions, tableReferences: []TableReference{}}
+	return &SelectStatement{selectList: references}
 }
 
-func ParseSelectMap(values map[string]interface{}) []SQLExpression {
-	expressions := []SQLExpression{}
+func ParseSelectMap(values map[string]interface{}) []*ColumnReference {
+	references := []*ColumnReference{}
 
 	for key, value := range values {
 		var alias *SQLAlias = nil
-		
+
 		switch aliasName := value.(type) {
 		case string:
 			alias = &SQLAlias{Name: aliasName}
@@ -165,9 +174,29 @@ func ParseSelectMap(values map[string]interface{}) []SQLExpression {
 			alias = nil
 		}
 
-		expression := &ColumnReference{expression: &SQLIdentifier{Name: key}, alias: alias}
-		expressions = append(expressions, expression)
+		reference := &ColumnReference{expression: &SQLIdentifier{Name: key}, alias: alias}
+		references = append(references, reference)
 	}
 
-	return expressions
+	return references
+}
+
+func ParseFromMap(values map[string]interface{}) []*TableReference {
+	references := []*TableReference{}
+
+	for key, value := range values {
+		var alias *SQLAlias = nil
+
+		switch aliasName := value.(type) {
+		case string:
+			alias = &SQLAlias{Name: aliasName}
+		default:
+			alias = nil
+		}
+
+		reference := &TableReference{tableExpression: &SQLIdentifier{Name: key}, alias: alias}
+		references = append(references, reference)
+	}
+
+	return references
 }

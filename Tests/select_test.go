@@ -36,10 +36,13 @@ func TestSelectWithAliases(t *testing.T) {
 		"a" : "c1",
 		"b": "c.2",
 		"c": nil,
-	}).From("t1");
+	}).From(map[string]interface{}{
+		"t1": "t.1",
+		"t2": nil,
+	});
 	SQL, values := statement.GenerateSQL()
 
-	expectedSQL := `select "a" as "c1", "b" as "c.2", "c" from "t1"`
+	expectedSQL := `select "a" as "c1", "b" as "c.2", "c" from "t1" as "t.1", "t2"`
 	if SQL != expectedSQL {
 		t.Error("Expected\n", expectedSQL, "\ngot\n", SQL)
 	}
